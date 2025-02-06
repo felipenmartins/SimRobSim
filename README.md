@@ -35,6 +35,8 @@ simple_robot_simulator.py
 
 ## Controls
 
+When the simulator starts, the robot will be at the center of the screen. With the mouse, click where you want to place the robot. You can further control it with the keyboard: 
+
 - **Up/Down Arrow Keys**: Move the robot forward/backwards
 - **Left/Right Arrow Keys**: Rotate the robot counterclockwise/clockwise
 - **C**: Center the robot on the screen
