@@ -1,8 +1,11 @@
+import pygame
+
 class Obstacle:
     def __init__(self, origin,color):
         self.x = origin[0]
         self.y = origin[1]
         self.color = color
+        
 
 class CircularObstacle(Obstacle):
     def __init__(self, origin, radius,color):
@@ -16,6 +19,7 @@ class RectangularObstacle(Obstacle):
         super().__init__(origin,color)
         self.width = width
         self.height = height
+        self.obs=  pygame.Rect(self.x,self.y,self.width,self.height)
 
 class PolygonObstacle(Obstacle):
     def __init__(self, origin,color, vertices):
