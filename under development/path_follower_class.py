@@ -30,7 +30,7 @@ class PathFollower:
         
         # Get the position and orientation errors
         dist_err, phi_err = self.get_pose_error(xd, yd, x, y, phi)
-        print(f"Next waypoint: {next_waypoint}, Robot position: {robot_pos} - dist_err: {dist_err}, phi_err: {phi_err}")
+        # print(f"Next waypoint: {next_waypoint}, Robot position: {robot_pos} - dist_err: {dist_err}, phi_err: {phi_err}")
         
         # Check if the robot is at the waypoint
         if dist_err < 20:

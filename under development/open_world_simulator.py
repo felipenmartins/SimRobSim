@@ -97,6 +97,7 @@ print("Press 's' to toggle Showing the robot path.")
 print("Press 'r' to Reset (clear) the robot path.")
 print("Press 't' to draw a Triangle to indicate the orientation of the robot.")
 print("Press 'f' to Follow the path defined by the waypoints.")
+print("Press 'w' to show the Waypoints on the screen.")
 print("Press 'q' to Quit the program.")
 
 
@@ -231,7 +232,7 @@ while running:
     screen.blit(new_robot_surface, new_robot_rect)
 
     font = pygame.font.Font(None, 22)
-    text_i = font.render("Control the robot with the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'T' to draw a triangle, 'Q' to quit.", True, (70, 70, 120))
+    text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 120))
     screen.blit(text_i, (25, 10))
 
     if print_pos:
