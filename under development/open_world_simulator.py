@@ -3,6 +3,7 @@ import pygame
 from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
+from path_follower_class import PathFollower
 
 # pygame setup
 pygame.init()
@@ -22,8 +23,13 @@ obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6]
 # Colision counter
 collision_counter = 0
 
+# Create the path follower object
+waypoints = [(700,500),(1000,300)]
+path_follower = PathFollower(waypoints)
+follow_path = False
+
 # Create the screen
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1280, 720)) 
 BACKGROUND_COLOR = (220, 220, 220)
 count_frames = 0 # Count the number of frames
 
@@ -126,6 +132,9 @@ while running:
             # Draw a triangle to indicate the orientation of the robot
             if keys[pygame.K_t]:
                 draw_triangle = not draw_triangle
+            # Follow the path defined by the waypoints
+            if keys[pygame.K_f]:
+                follow_path = not follow_path
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -158,6 +167,13 @@ while running:
     if keys[pygame.K_RIGHT]:
         orientation = robot_angular_mov(-ANG_SPEED, orientation)
 
+    # let path follwer change the robot position
+    if follow_path:
+        # Linear speed is constant
+        robot_pos = robot_linear_mov(LIN_SPEED,robot_pos)
+        # Orientation depends on the next waypoint
+        orientation = robot_angular_mov(path_follower.generate_angular_move(), orientation)
+
     # Limit the robot position to the screen
     if robot_pos.x > screen.get_width():
         robot_pos.x = screen.get_width()
@@ -167,7 +183,6 @@ while running:
         robot_pos.x = 0
     if robot_pos.y < 0:
         robot_pos.y = 0  
-
 
     #Draw the obstacle
     for obstacle in obstacles:
