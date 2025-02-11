@@ -24,7 +24,7 @@ obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6]
 collision_counter = 0
 
 # Create the path follower object
-waypoints = [(700,500),(1000,300)]
+waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
 path_follower = PathFollower(waypoints)
 follow_path = False
 
@@ -151,9 +151,9 @@ while running:
     horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
     vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
 
-    # #Detect collision with obstacles
-    # collide = rect1.colliderect(rect2)
-    # obs1=pygame.draw.rect(screen, obstacle1.color, (obstacle1.x,obstacle1.y,obstacle1.width,obstacle1.height))
+    # Draw the waypoints
+    for waypoint in waypoints:
+        pygame.draw.circle(screen, "red", waypoint, 10)
 
     # Move the robot with the arrow keys
     keys = pygame.key.get_pressed()
@@ -172,7 +172,7 @@ while running:
         # Linear speed is constant
         robot_pos = robot_linear_mov(LIN_SPEED,robot_pos)
         # Orientation depends on the next waypoint
-        orientation = robot_angular_mov(path_follower.generate_angular_move(), orientation)
+        orientation = robot_angular_mov(path_follower.generate_angular_move(robot_pos, orientation), orientation)
 
     # Limit the robot position to the screen
     if robot_pos.x > screen.get_width():
