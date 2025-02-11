@@ -27,6 +27,7 @@ collision_counter = 0
 waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
 path_follower = PathFollower(waypoints)
 follow_path = False
+show_waypoints = False
 
 # Create the screen
 screen = pygame.display.set_mode((1280, 720)) 
@@ -95,6 +96,7 @@ print("Press 'p' to toggle Printing the robot position.")
 print("Press 's' to toggle Showing the robot path.")
 print("Press 'r' to Reset (clear) the robot path.")
 print("Press 't' to draw a Triangle to indicate the orientation of the robot.")
+print("Press 'f' to Follow the path defined by the waypoints.")
 print("Press 'q' to Quit the program.")
 
 
@@ -121,9 +123,10 @@ while running:
             # Toggle robot path 
             if keys[pygame.K_s]:
                 show_path = not show_path
-            # Clear the robot path
+            # Clear the robot path and achieved waypoints
             if keys[pygame.K_r]:
                 path = tuple()
+                path_follower.next_waypoint = 0 # index of the next waypoint
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
                 orientation += math.pi/2
@@ -135,6 +138,9 @@ while running:
             # Follow the path defined by the waypoints
             if keys[pygame.K_f]:
                 follow_path = not follow_path
+            # Show the waypoints on the screen
+            if keys[pygame.K_w]:
+                show_waypoints = not show_waypoints
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -152,8 +158,9 @@ while running:
     vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
 
     # Draw the waypoints
-    for waypoint in waypoints:
-        pygame.draw.circle(screen, "red", waypoint, 10)
+    if show_waypoints:
+        for waypoint in waypoints:
+            pygame.draw.circle(screen, "red", waypoint, 5)
 
     # Move the robot with the arrow keys
     keys = pygame.key.get_pressed()
