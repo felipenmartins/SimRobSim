@@ -24,8 +24,12 @@ class PathFollower:
         y = robot_pos.y
         phi = orientation
         
+        # Get the desired position
+        xd = next_waypoint[0]
+        yd = next_waypoint[1]
+        
         # Get the position and orientation errors
-        dist_err, phi_err = self.get_pose_error(next_waypoint[0], next_waypoint[1], x, y, phi)
+        dist_err, phi_err = self.get_pose_error(xd, yd, x, y, phi)
         # print(f"Next waypoint: {next_waypoint}, Robot position: {robot_pos} - dist_err: {dist_err}, phi_err: {phi_err}")
         
         # Check if the robot is at the waypoint
@@ -44,9 +48,6 @@ class PathFollower:
         if len(self.way_points) > self.next_waypoint + 1:
             self.next_waypoint += 1
 
-    def reset_next_waypoint_index(self,reset_to=0):
-        self.next_waypoint = reset_to
-            
     def get_pose_error(self, xd, yd, x, y, phi):
         """ Returns the position and orientation errors. 
             Orientation error is bounded between -pi and +pi radians.
@@ -71,7 +72,6 @@ class PathFollower:
         e_prev contains the error calculated in the previous step.
         e_acc contains the integration (accumulation) term.
         """
-    
         P = kp*e                      # Proportional term; kp is the proportional gain
         I = e_acc + ki*e*delta_t    # Intergral term; ki is the integral gain
         D = kd*(e - e_prev)/delta_t   # Derivative term; kd is the derivative gain

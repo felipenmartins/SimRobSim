@@ -1,8 +1,8 @@
 # Simple Robot Simulator
 
-This is a simple robot simulator built using Pygame. For now, the working version of the simulator allows you to control a differential-drive robot on the screen using the keyboard and mouse. The idea is that you can write your own controller to generate commands to the robot. 
+This is a simple robot simulator built using Pygame. For now, the working version of the simulator allows you to control a differential-drive robot on the screen using the keyboard and mouse, and define waypoints for the robot to follow. It also implements simple reaction to obstacle collision. The idea is that you can write your own controller to generate commands to the robot. 
 
-The screenshot below shows the simulator running. You can see a robot and the path it followed since the simulation started.
+The screenshot below shows the simulator running. You can see a robot, some obstacles in black, some waypoints in red, and the path it followed since the simulation started.
 
 ![Simple Robot Simulator screenshot](SimRobSim.png)
 
@@ -12,39 +12,52 @@ The folder 'under development' contains the version being developed at the momen
 
 - Python 3.10 or higher
 - Pygame
+- NumPy
 
 ## Installation
+
+In case you need to install stuff:
 
 1. Install Python 3.10 (or higher) from [python.org](https://www.python.org/).
 2. Install Pygame using pip:
     ```
     pip install pygame
     ```
+3. Install NumPy using pip:
+    ```
+    pip install numpy
+    ```
+
 
 ## Usage
 
 1. Clone the repository or download the source code.
 2. Run the 
 
-simple_robot_simulator.py
+open_world_simulator.py
 
  file:
     ```
-    python simple_robot_simulator.py
+    python open_world_simulator.py
     ```
 
 ## Controls
 
-When the simulator starts, the robot will be at the center of the screen. With the mouse, click where you want to place the robot. You can further control it with the keyboard: 
+When the simulator starts, the robot will be at the center of the screen. With the mouse, click where you want to place the robot. You can further control it with the keyboard or activate the path-following controller for the robot to move across a list of pre-defined waypoints.
+
+While the simulator is running, you can press the following keys to change its behavior:
 
 - **Up/Down Arrow Keys**: Move the robot forward/backwards
 - **Left/Right Arrow Keys**: Rotate the robot counterclockwise/clockwise
-- **C**: Center the robot on the screen
-- **9**: Rotate the robot by +90 degrees
-- **P**: Toggle printing of robot position on the screen
-- **S**: Toggle showing the robot path on the screen
-- **R**: Clear the memory of the robot path
-- **T**: Draw a triangle to indicate the orientation of the robot
+- **C**: **Center** the robot on the screen
+- **9**: rotate the robot by **+90** degrees
+- **P**: toggle **Printing** of robot position on the screen
+- **S**: toggle **Showing path** on the screen
+- **R**: **Reset** the memory of the robot path and achieved waypoints
+- **T**: toggle a **Triangle** to indicate the orientation of the robot
+- **W**: toggle displaying the **Waypoints** on the screen
+- **F**: toggle the controller to **Follow** the path defined by the waypoints
+- **Q**: **Quit** the program
 
 ## Code Overview
 
@@ -52,6 +65,7 @@ The main components of the code are:
 
 - **Pygame Setup**: Initializes Pygame, sets up the screen, and loads assets.
 - **Robot Movement Functions**: Functions to apply linear and angular movement to the robot.
+- **Path Follower**: Class that generates angular speed to move the robot across a list of waypoints. 
 - **Main Loop**: Handles events, updates the robot's position and orientation, and renders the screen.
 
 ## To do
@@ -74,17 +88,17 @@ There is a ton of things to do! For now, creating classes to separate the code i
     - IR for line following
 * Sensor Noise class 
 
-* Obstacles class
+* Obstacles class (implemented)
     - Dynamics obstacles
         - Proxemics
         - Potential fields
-    - Static obstacles
+    - Static obstacles (implemented)
 
-* Grid class
+* Grid class (under construction)
     - World parameters
 
 * Planning Algorithms class
-    - Dijkstra
+    - Dijkstra (under construction)
     - A*
     - D*
 
@@ -95,12 +109,12 @@ There is a ton of things to do! For now, creating classes to separate the code i
     - SLAM
 
 * Controller class
-    - PID to control orientation
+    - PID to control orientation (implemented in the path follower)
     - Trajectory tracking to control speed and orientation
     - Other simple behaviors
 
 * State machine to select controllers or simple behaviors to:
-    - Go-to-goal
+    - Go-to-goal 
     - Line following
     - Path following
 	- Obstacle avoidince
