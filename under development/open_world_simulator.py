@@ -59,8 +59,8 @@ path = tuple() # Store the robot path
 LIN_SPEED = 200  # pixels per second
 ANG_SPEED = 2    # radians per second
 ROBOT_SIZE = 100
-# robot_start_coords =(1100, 500)
-robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
+robot_start_coords =(1200, 100)
+# robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
 robot_pos = pygame.Vector2(robot_start_coords)  # initial position
 orientation = 0  # initial orientation in radians
 prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
@@ -144,6 +144,9 @@ while running:
             if keys[pygame.K_r]:
                 path = tuple()
                 path_follower.next_waypoint = 0 # index of the next waypoint
+                robot_pos.x = robot_start_coords[0]  # initial position
+                robot_pos.y = robot_start_coords[1]  # initial position
+                orientation = 0  # initial orientation in radians
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
                 orientation += math.pi/2

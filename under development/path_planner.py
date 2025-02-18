@@ -3,8 +3,8 @@ import heapq
 
 class Dijkstra:
     def __init__(self):
-        self.start = (2, 2)
-        self.goal = (3, 2)
+        self.start = (12, 1) # width (x), height (y)
+        self.goal = (12, 6)  # width (x), height (y)
         self.path = ()
         
         self.grid = np.array([
@@ -15,7 +15,7 @@ class Dijkstra:
             [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
             [0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ])
+        ]).transpose() # Transpose the grid to match the orientation of the world
         
         self.costs = np.array([
             [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
@@ -25,7 +25,7 @@ class Dijkstra:
             [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
             [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
             [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-        ])
+        ]).transpose() # Transpose the costs to match the orientation of the world
 
     # def plot_grid(self,grid, path=None):
     #     """
