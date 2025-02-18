@@ -27,12 +27,12 @@ obstacle7=RectangularObstacle((200,300),"black",100,300)
 obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
 # Create Robot
-LIN_SPEED = 200  # pixels per second
-ANG_SPEED = 2    # radians per second
+LIN_SPEED = 80  # pixels per second
+ANG_SPEED = 1   # radians per second
 ROBOT_SIZE = 100    # not in use
 # robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
 robot_start_coords =(1200, 100) # Initial robot coordinates in pixels
-robot_goal_coords=(00, 600)     # Goal coordinates in pixels
+robot_goal_coords=(900, 400)     # Goal coordinates in pixels
 robot_pos = pygame.Vector2(robot_start_coords)  # initial robot position
 orientation = 0  # initial robot orientation in radians
 prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
@@ -60,7 +60,7 @@ path_follower = PathFollower(waypoints)
 # Variables
 # waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
 clock = pygame.time.Clock()
-dt = clock.tick(60) / 1000  # delta_d = 60 ms 
+dt = clock.tick(60) / 1000  # delta_t = 60 ms 
 count_frames = 0 # Count the number of frames
 path = tuple() # Store the robot path
 collision_counter = 0
@@ -279,7 +279,7 @@ while running:
     # limits FPS to 60
     # dt is delta time in seconds since last frame, used for framerate-
     # independent physics.
-    dt = clock.tick(60) / 1000
+    # dt = clock.tick(60) / 1000
     count_frames += 1 # Increment the frame counter
 
 pygame.quit()

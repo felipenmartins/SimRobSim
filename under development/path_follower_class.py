@@ -69,7 +69,7 @@ class PathFollower:
 
         return dist_err, phi_err_correct
 
-    def pid_controller(self, e, e_prev, e_acc, delta_t, kp=7.0, kd=0, ki=0):
+    def pid_controller(self, e, e_prev, e_acc, delta_t, kp=3.0, kd=0, ki=0):
         """ PID algortithm: must be executed every delta_t seconds
         The error e must be calculated as: e = desired_value - actual_value
         e_prev contains the error calculated in the previous step.
