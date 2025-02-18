@@ -1,23 +1,24 @@
 import numpy as np 
 import heapq
 
-class Djikstras:
+class Dijkstra:
     def __init__(self):
         self.start=(0,0)
         self.goal=(9,9)
+        self.path = ()
         
         self.grid = np.array([
-        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        [0, 1, 1, 1, 0, 0, 0, 1, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
-        [0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-        [0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ])
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ])
         
         self.costs = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -60,7 +61,8 @@ class Djikstras:
 
     # grid = create_grid()
     # plot_grid(grid)
-    def dijkstra(grid, costs, start, goal):
+
+    def plan(self, grid, costs, start, goal):
         """
         Implements Dijkstra's Algorithm for a grid-based environment.
         Args:
@@ -118,7 +120,7 @@ class Djikstras:
             path.append(node)
             node = parents[node]  # Gets the parent of the node
         path.reverse()  # Reverse the path to make it from start to the goal node
-        return path
+        return self.path
                 
 
         

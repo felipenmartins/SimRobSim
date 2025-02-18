@@ -4,6 +4,7 @@ from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
 from path_follower_class import PathFollower
+from path_planner import Dijkstra
 
 # pygame setup
 pygame.init()
@@ -27,7 +28,12 @@ collision_counter = 0
 waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
 path_follower = PathFollower(waypoints)
 follow_path = False
-show_waypoints = False
+show_next_waypoint = True
+show_all_waypoints = False
+
+# Cretae path planning object
+path_planner = Dijkstra()
+path_dijkstra = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
 
 # Create the screen
 screen = pygame.display.set_mode((1280, 720)) 
@@ -141,7 +147,10 @@ while running:
                 follow_path = not follow_path
             # Show the waypoints on the screen
             if keys[pygame.K_w]:
-                show_waypoints = not show_waypoints
+                show_all_waypoints = not show_all_waypoints
+            # Show Next waypoint
+            if keys[pygame.K_n]:
+                show_next_waypoint = not show_next_waypoint
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -159,9 +168,13 @@ while running:
     vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
 
     # Draw the waypoints
-    if show_waypoints:
+    if show_all_waypoints:
         for waypoint in waypoints:
             pygame.draw.circle(screen, "red", waypoint, 5)
+
+    # Draw the next waypoint
+    if show_next_waypoint:
+        pygame.draw.circle(screen, "blue", waypoints[path_follower.next_waypoint], 5)
 
     # Move the robot with the arrow keys
     keys = pygame.key.get_pressed()
