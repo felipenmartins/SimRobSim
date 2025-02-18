@@ -16,20 +16,35 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 screen = pygame.display.set_mode((1280, 720)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
-#settign up the obstacles
-obstacle1=RectangularObstacle((100,100),"black",100,100)
-obstacle2=RectangularObstacle((50,50),"black",50,400)
-obstacle3=RectangularObstacle((800,300),"black",500,50)
-obstacle4=RectangularObstacle((800,300),"black",50,200)
-obstacle5=RectangularObstacle((800,30),"black",50,100)
-obstacle6=RectangularObstacle((220,500),"black",300,50)
-obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6]
+# settign up the obstacles
+obstacle1=RectangularObstacle((50,100),"black",100,100)
+obstacle2=RectangularObstacle((0,0),"black",50,500)
+obstacle3=RectangularObstacle((800,300),"black",500,100)
+obstacle4=RectangularObstacle((800,300),"black",100,300)
+obstacle5=RectangularObstacle((800,0),"black",100,200)
+obstacle6=RectangularObstacle((200,500),"black",300,100)
+obstacle7=RectangularObstacle((200,300),"black",100,300)
+obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
-# Colision counter
-collision_counter = 0
+# Create Robot
+LIN_SPEED = 200  # pixels per second
+ANG_SPEED = 2    # radians per second
+ROBOT_SIZE = 100    # not in use
+# robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
+robot_start_coords =(1200, 100) # Initial robot coordinates in pixels
+robot_goal_coords=(00, 600)     # Goal coordinates in pixels
+robot_pos = pygame.Vector2(robot_start_coords)  # initial robot position
+orientation = 0  # initial robot orientation in radians
+prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
+# robot_surface = pygame.Surface((ROBOT_SIZE, ROBOT_SIZE))
+robot_surface = pygame.image.load("roomba-top-view-removebg.png").convert_alpha()
+robot_rect = robot_surface.get_rect()
+robot_rect.center = robot_pos
 
 # Create path planning object
-path_planner = Dijkstra()
+start_path = (robot_start_coords[0]//100, robot_start_coords[1]//100)
+goal_path = (robot_goal_coords[0]//100, robot_goal_coords[1]//100)
+path_planner = Dijkstra(start_path, goal_path)
 path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
 print(f"Path: {path_planned}")
 
@@ -42,39 +57,25 @@ print(f"Waypoints: {waypoints}")
 # Create the path follower object
 path_follower = PathFollower(waypoints)
 
+# Variables
 # waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
+clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000  # delta_d = 60 ms 
+count_frames = 0 # Count the number of frames
+path = tuple() # Store the robot path
+collision_counter = 0
+TRIANG_SIZE = 15
+
+# Flags
 follow_path = False
 show_next_waypoint = True
 show_all_waypoints = True
-
-# Variables
-count_frames = 0 # Count the number of frames
-clock = pygame.time.Clock()
 running = True  # Exit the program when False
-dt = clock.tick(60) / 1000  # delta_d = 60 ms 
 print_pos = True # Print the robot pose on the screen when True
 show_path = True # Show robot path on the screen when True
-path = tuple() # Store the robot path
+draw_triangle = False # Draw a triangle to indicate the orientation of the robot
 
-LIN_SPEED = 200  # pixels per second
-ANG_SPEED = 2    # radians per second
-ROBOT_SIZE = 100
-robot_start_coords =(1200, 100)
-# robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
-robot_pos = pygame.Vector2(robot_start_coords)  # initial position
-orientation = 0  # initial orientation in radians
-prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
-
-# robot_surface = pygame.Surface((ROBOT_SIZE, ROBOT_SIZE))
-robot_surface = pygame.image.load("roomba-top-view-removebg.png").convert_alpha()
-# robot_surface.set_colorkey("white")
-robot_rect = robot_surface.get_rect()
-robot_rect.center = robot_pos
-
-# Triangle inside the robot_surface
-TRIANG_SIZE = 15
-draw_triangle = False
-
+# Draw the robot
 # Make a copy of the robot_surface to rotate it with respect to the original one
 new_robot_surface = pygame.transform.rotate(robot_surface, orientation%360)
 new_robot_rect = new_robot_surface.get_rect()
