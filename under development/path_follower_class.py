@@ -10,6 +10,7 @@ class PathFollower:
         self.e_prev = 0 # previsous position error - for the PID controller
         self.e_acc = 0  # accumulated position error - for the PID controller
         self.at_waypoint = False
+        self.is_at_final_waypoint = False
 
     def generate_angular_move(self, robot_pos, orientation):
         """ Generates the angular move to reach the next waypoint.
@@ -43,9 +44,12 @@ class PathFollower:
     def update_way_points(self):
         if len(self.way_points) > self.next_waypoint + 1:
             self.next_waypoint += 1
+        else:
+            self.is_at_final_waypoint = True
 
-    def reset_next_waypoint_index(self,reset_to=0):
+    def reset_next_waypoint_index(self, reset_to=0):
         self.next_waypoint = reset_to
+        self.is_at_final_waypoint = False
             
     def get_pose_error(self, xd, yd, x, y, phi):
         """ Returns the position and orientation errors. 

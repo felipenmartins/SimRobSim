@@ -3,34 +3,28 @@ import heapq
 
 class Dijkstra:
     def __init__(self):
-        self.start=(0,0)
-        self.goal=(9,9)
+        self.start = (2, 2)
+        self.goal = (3, 2)
         self.path = ()
         
         self.grid = np.array([
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 0, 0, 0, 1, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
-            [0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
-            [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-            [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         
         self.costs = np.array([
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
         ])
 
     # def plot_grid(self,grid, path=None):
@@ -74,7 +68,7 @@ class Dijkstra:
         Returns:
         - path (list of tuples): The shortest path from start to goal.
         """
-        rows, cols = self.grid.shape
+        rows, cols = grid.shape
         visited = set()
         distances = {start: 0}  # Distance to the start node is 0
         parents = {start: None}  # A parent is the node that preceeds the current one: used to reconstruct the path
@@ -99,6 +93,7 @@ class Dijkstra:
             # Gets the coordinates of each neighboring cell
             for direction in directions:
                 neighbor = (current_node[0] + direction[0], current_node[1] + direction[1])
+                # neighbor = (current_node[1] + direction[0], current_node[0] + direction[1])
 
                 # Can only move within the boundaries of the world, and if there's no obstacle
                 if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and grid[neighbor] == 0):
@@ -120,7 +115,7 @@ class Dijkstra:
             path.append(node)
             node = parents[node]  # Gets the parent of the node
         path.reverse()  # Reverse the path to make it from start to the goal node
-        return self.path
+        return path
                 
 
         
