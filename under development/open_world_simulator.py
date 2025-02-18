@@ -34,6 +34,8 @@ show_all_waypoints = False
 # Cretae path planning object
 path_planner = Dijkstra()
 path_dijkstra = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
+# path_follower = PathFollower(path_dijkstra)
+
 
 # Create the screen
 screen = pygame.display.set_mode((1280, 720)) 
