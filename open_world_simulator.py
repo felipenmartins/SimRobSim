@@ -4,6 +4,7 @@ from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
 from path_follower_class import PathFollower
+from path_planner import Dijkstra
 
 # pygame setup
 pygame.init()
@@ -11,54 +12,70 @@ pygame.mouse.set_visible(True)
 pygame.display.set_caption("Simple Robot Simulator")
 pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 
-#settign up the obstacles
-obstacle1=RectangularObstacle((100,100),"black",100,100)
-obstacle2=RectangularObstacle((50,50),"black",50,400)
-obstacle3=RectangularObstacle((800,300),"black",500,50)
-obstacle4=RectangularObstacle((800,300),"black",50,300)
-obstacle5=RectangularObstacle((800,30),"black",50,150)
-obstacle6=RectangularObstacle((220,500),"black",400,50)
-obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6]
-
-# Colision counter
-collision_counter = 0
-
-# Create the path follower object
-waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
-path_follower = PathFollower(waypoints)
-follow_path = False
-show_waypoints = False
-
 # Create the screen
-screen = pygame.display.set_mode((1280, 720)) 
+screen = pygame.display.set_mode((1280, 720)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
-count_frames = 0 # Count the number of frames
 
-clock = pygame.time.Clock()
-running = True  # Exit the program when False
-dt = clock.tick(60) / 1000  # delta_d = 60 ms 
-print_pos = True # Print the robot pose on the screen when True
-show_path = True # Show robot path on the screen when True
-path = tuple() # Store the robot path
+# settign up the obstacles
+obstacle1=RectangularObstacle((50,100),"black",100,100)
+obstacle2=RectangularObstacle((0,0),"black",50,500)
+obstacle3=RectangularObstacle((800,300),"black",500,100)
+obstacle4=RectangularObstacle((800,300),"black",100,300)
+obstacle5=RectangularObstacle((800,0),"black",100,200)
+obstacle6=RectangularObstacle((200,500),"black",300,100)
+obstacle7=RectangularObstacle((200,300),"black",100,300)
+obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
-LIN_SPEED = 200  # pixels per second
-ANG_SPEED = 2    # radians per second
-ROBOT_SIZE = 100
-# robot_pos_coords =(200,200)
-robot_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)  # initial position
-orientation = 0  # initial orientation in radians
+# Create Robot
+LIN_SPEED = 80  # pixels per second
+ANG_SPEED = 1   # radians per second
+ROBOT_SIZE = 100    # not in use
+# robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
+robot_start_coords =(1200, 100) # Initial robot coordinates in pixels
+robot_goal_coords=(900, 400)     # Goal coordinates in pixels
+robot_pos = pygame.Vector2(robot_start_coords)  # initial robot position
+orientation = 0  # initial robot orientation in radians
 prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
-
 # robot_surface = pygame.Surface((ROBOT_SIZE, ROBOT_SIZE))
 robot_surface = pygame.image.load("roomba-top-view-removebg.png").convert_alpha()
-# robot_surface.set_colorkey("white")
 robot_rect = robot_surface.get_rect()
 robot_rect.center = robot_pos
 
-# Triangle inside the robot_surface
-TRIANG_SIZE = 15
-draw_triangle = False
+# Create path planning object
+start_path = (robot_start_coords[0]//100, robot_start_coords[1]//100)
+goal_path = (robot_goal_coords[0]//100, robot_goal_coords[1]//100)
+path_planner = Dijkstra(start_path, goal_path)
+path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
+print(f"Path: {path_planned}")
 
+# Get waypoints in pixels (scale to the screen)
+waypoints = []
+for p in path_planned:
+    waypoints.append((p[0]*100 + 50, p[1]*100 + 50))
+print(f"Waypoints: {waypoints}")
+
+# Create the path follower object
+path_follower = PathFollower(waypoints)
+
+# Variables
+# waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
+clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000  # delta_t = 60 ms 
+count_frames = 0 # Count the number of frames
+path = tuple() # Store the robot path
+collision_counter = 0
+TRIANG_SIZE = 15
+
+# Flags
+follow_path = False
+show_next_waypoint = True
+show_all_waypoints = True
+running = True  # Exit the program when False
+print_pos = True # Print the robot pose on the screen when True
+show_path = True # Show robot path on the screen when True
+draw_triangle = False # Draw a triangle to indicate the orientation of the robot
+
+# Draw the robot
 # Make a copy of the robot_surface to rotate it with respect to the original one
 new_robot_surface = pygame.transform.rotate(robot_surface, orientation%360)
 new_robot_rect = new_robot_surface.get_rect()
@@ -128,6 +145,9 @@ while running:
             if keys[pygame.K_r]:
                 path = tuple()
                 path_follower.next_waypoint = 0 # index of the next waypoint
+                robot_pos.x = robot_start_coords[0]  # initial position
+                robot_pos.y = robot_start_coords[1]  # initial position
+                orientation = 0  # initial orientation in radians
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
                 orientation += math.pi/2
@@ -141,7 +161,10 @@ while running:
                 follow_path = not follow_path
             # Show the waypoints on the screen
             if keys[pygame.K_w]:
-                show_waypoints = not show_waypoints
+                show_all_waypoints = not show_all_waypoints
+            # Show Next waypoint
+            if keys[pygame.K_n]:
+                show_next_waypoint = not show_next_waypoint
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -152,6 +175,11 @@ while running:
         prev_robot_pos = (int(robot_pos.x), int(robot_pos.y))
         prev_robot_orientation = orientation
 
+    # If final waypoint is reached, stop following the path
+    if path_follower.is_at_final_waypoint:
+        follow_path = False
+        path_follower.reset_next_waypoint_index()
+
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
     # Draw the grid
@@ -159,9 +187,13 @@ while running:
     vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
 
     # Draw the waypoints
-    if show_waypoints:
+    if show_all_waypoints:
         for waypoint in waypoints:
             pygame.draw.circle(screen, "red", waypoint, 5)
+
+    # Draw the next waypoint
+    if show_next_waypoint:
+        pygame.draw.circle(screen, "blue", waypoints[path_follower.next_waypoint], 5)
 
     # Move the robot with the arrow keys
     keys = pygame.key.get_pressed()
@@ -247,7 +279,7 @@ while running:
     # limits FPS to 60
     # dt is delta time in seconds since last frame, used for framerate-
     # independent physics.
-    dt = clock.tick(60) / 1000
+    # dt = clock.tick(60) / 1000
     count_frames += 1 # Increment the frame counter
 
 pygame.quit()
