@@ -3,6 +3,7 @@ import pygame
 from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
+from obstacle_class import RectangularGridObstacle
 from path_follower_class import PathFollower
 from path_planner import Dijkstra
 
@@ -15,6 +16,8 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 # Create the screen
 screen = pygame.display.set_mode((1280, 720)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
+
+obstacle_obj=RectangularGridObstacle()
 
 # settign up the obstacles
 obstacle1=RectangularObstacle((50,100),"black",100,100)
@@ -44,7 +47,7 @@ robot_rect.center = robot_pos
 # Create path planning object
 start_path = (robot_start_coords[0]//100, robot_start_coords[1]//100)
 goal_path = (robot_goal_coords[0]//100, robot_goal_coords[1]//100)
-path_planner = Dijkstra(start_path, goal_path)
+path_planner = Dijkstra(start_path, goal_path,obstacle_obj)
 path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
 print(f"Path: {path_planned}")
 

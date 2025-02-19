@@ -2,20 +2,12 @@ import numpy as np
 import heapq
 
 class Dijkstra:
-    def __init__(self, start=(12, 1), goal=(9, 4)):
+    def __init__(self, start=(12, 1), goal=(9, 4),obstacles=None):
         self.start = start # width (x), height (y)
         self.goal = goal  # width (x), height (y)
         self.path = ()
         
-        self.grid = np.array([
-            [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-            [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ]).transpose() # Transpose the grid to match the orientation of the world
+        self.grid = obstacles.obstacles.transpose()
         
         self.costs = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
