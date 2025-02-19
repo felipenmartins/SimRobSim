@@ -27,6 +27,7 @@ obstacle4=RectangularObstacle((800,300),"black",100,300)
 obstacle5=RectangularObstacle((800,0),"black",100,200)
 obstacle6=RectangularObstacle((200,500),"black",300,100)
 obstacle7=RectangularObstacle((200,300),"black",100,300)
+
 obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
 # Create Robot
@@ -105,7 +106,6 @@ def robot_angular_mov(ang_speed, orientation):
         orientation += 2 * math.pi
 
     return orientation
-
 
 # Print instructions to control the robot and interact with the simulator
 print("Welcome to the Simple Robot Simulator!")
