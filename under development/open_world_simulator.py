@@ -168,6 +168,13 @@ while running:
             # Show Next waypoint
             if keys[pygame.K_n]:
                 show_next_waypoint = not show_next_waypoint
+            # Change robot speeds by pressing + and -
+            if keys[pygame.K_EQUALS]:
+                LIN_SPEED += 10
+                ANG_SPEED += 0.1
+            if keys[pygame.K_MINUS]:
+                LIN_SPEED -= 10
+                ANG_SPEED -= 0.1
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -227,25 +234,24 @@ while running:
     if robot_pos.y < 0:
         robot_pos.y = 0  
 
-    #Draw the obstacle
+    # Draw the obstacle
     for obstacle in obstacles:
         pygame.draw.rect(screen, obstacle.color, obstacle.obs, 0,1)
         collide = obstacle.obs.colliderect(new_robot_rect)
+        # If collide after moving, restore the previous robot position    
         if collide:
             collision_counter += 1
             print(f"{collision_counter} collisions detected.") 
-            break
-
-    # If collide after moving, restore the previous robot position    
-    if collide:
-        try:
-            robot_pos.x = path[-3][0] # prev_robot_pos[0]
-            robot_pos.y = path[-3][1] # prev_robot_pos[1]
-            orientation = prev_robot_orientation
-        except:
-            robot_pos.x = screen.get_width() / 2
-            robot_pos.y = screen.get_height() / 2
-            orientation = 0
+            try:
+                robot_pos.x = path[-20][0] # prev_robot_pos[0]
+                robot_pos.y = path[-20][1] # prev_robot_pos[1]
+                orientation = prev_robot_orientation
+                break
+            except:
+                robot_pos.x = robot_start_coords[0]
+                robot_pos.y = robot_start_coords[1]
+                orientation = 0
+                break
 
     # Draw the robot path
     if show_path and len(path) > 1:
@@ -275,6 +281,9 @@ while running:
         font = pygame.font.Font(None, 22)
         text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (70, 70, 120))
         screen.blit(text, (25, screen.get_height() - 20))
+        text = font.render(f"Linear speed: {LIN_SPEED} pixels/s; Angular speed: {int(ANG_SPEED * 180/math.pi)} degrees/s.", True, (70, 70, 120))
+        screen.blit(text, (500, screen.get_height() - 20))
+
 
     # flip() the display to put your work on screen
     pygame.display.flip()
