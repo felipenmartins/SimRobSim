@@ -31,8 +31,8 @@ obstacle7=RectangularObstacle((200,300),"black",100,300)
 obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
 # Create Robot
-LIN_SPEED = 80  # pixels per second
-ANG_SPEED = 1   # radians per second
+LIN_SPEED = 100  # pixels per second
+ANG_SPEED = 1.58   # radians per second
 ROBOT_SIZE = 100    # not in use
 # robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
 robot_start_coords =(1200, 100) # Initial robot coordinates in pixels
@@ -151,6 +151,8 @@ while running:
                 robot_pos.x = robot_start_coords[0]  # initial position
                 robot_pos.y = robot_start_coords[1]  # initial position
                 orientation = 0  # initial orientation in radians
+                LIN_SPEED = 100  # pixels per second
+                ANG_SPEED = 1.58   # radians per second
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
                 orientation += math.pi/2
@@ -174,7 +176,11 @@ while running:
                 ANG_SPEED += 0.1
             if keys[pygame.K_MINUS]:
                 LIN_SPEED -= 10
+                if LIN_SPEED < 0:
+                    LIN_SPEED = 0
                 ANG_SPEED -= 0.1
+                if ANG_SPEED < 0:
+                    ANG_SPEED = 0
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
@@ -234,24 +240,6 @@ while running:
     if robot_pos.y < 0:
         robot_pos.y = 0  
 
-    # Draw the obstacle
-    for obstacle in obstacles:
-        pygame.draw.rect(screen, obstacle.color, obstacle.obs, 0,1)
-        collide = obstacle.obs.colliderect(new_robot_rect)
-        # If collide after moving, restore the previous robot position    
-        if collide:
-            collision_counter += 1
-            print(f"{collision_counter} collisions detected.") 
-            try:
-                robot_pos.x = path[-20][0] # prev_robot_pos[0]
-                robot_pos.y = path[-20][1] # prev_robot_pos[1]
-                orientation = prev_robot_orientation
-                break
-            except:
-                robot_pos.x = robot_start_coords[0]
-                robot_pos.y = robot_start_coords[1]
-                orientation = 0
-                break
 
     # Draw the robot path
     if show_path and len(path) > 1:
@@ -271,6 +259,19 @@ while running:
     # pygame.draw.circle(screen, "purple", robot_pos, ROBOT_SIZE)
     new_robot_rect.center = int(robot_pos.x), int(robot_pos.y)
     screen.blit(new_robot_surface, new_robot_rect)
+
+    # Draw the obstacles
+    for obstacle in obstacles:
+        pygame.draw.rect(screen, obstacle.color, obstacle.obs, 0,1)
+        # collide = obstacle.obs.colliderect(new_robot_rect)
+        # collide = obstacle.obs.collidepoint(robot_pos)
+        collide = obstacle.obs.collidelistall([new_robot_rect])
+
+        # If collide after moving, move backwards with the same speed    
+        if collide:
+            collision_counter += 1
+            print(f"{collision_counter} collisions detected.") 
+            robot_pos = robot_linear_mov(-LIN_SPEED, robot_pos)
 
     font = pygame.font.Font(None, 22)
     text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 120))
