@@ -264,8 +264,8 @@ while running:
     for obstacle in obstacles:
         pygame.draw.rect(screen, obstacle.color, obstacle.obs, 0,1)
         # collide = obstacle.obs.colliderect(new_robot_rect)
-        # collide = obstacle.obs.collidepoint(robot_pos)
-        collide = obstacle.obs.collidelistall([new_robot_rect])
+        collide = obstacle.obs.collidepoint(robot_pos)
+        # collide = obstacle.obs.collidelistall([new_robot_rect])
 
         # If collide after moving, move backwards with the same speed    
         if collide:

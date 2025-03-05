@@ -2,20 +2,12 @@ import numpy as np
 import heapq
 
 class Dijkstra:
-    def __init__(self, start=(12, 1), goal=(9, 4)):
+    def __init__(self, start=(12, 1), goal=(9, 4),obstacles=None):
         self.start = start # width (x), height (y)
         self.goal = goal  # width (x), height (y)
         self.path = ()
         
-        self.grid = np.array([
-            [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-            [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ]).transpose() # Transpose the grid to match the orientation of the world
+        self.grid = obstacles.obstacles.transpose()
         
         self.costs = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -26,35 +18,6 @@ class Dijkstra:
             [1, 1, 1, 1, 1, 20, 20, 20, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ]).transpose() # Transpose the costs to match the orientation of the world
-
-    # def plot_grid(self,grid, path=None):
-    #     """
-    #     Plots the grid with optional path overlay.
-    #     Args:
-    #     - grid (2D array): The environment.
-    #     - path (list of tuples): The path to overlay (optional).
-    #     """
-    #     # Anootate costs
-    #     rows, cols = self.grid.shape
-    #     for i in range(rows):
-    #         for j in range(cols):
-    #             if grid[i][j] == 0:
-    #                 plt.text(j, i, f'{costs[i][j]}', ha='center', va='center', color=('lightgray'), fontsize=10)
-
-    #     if path:
-    #         i = []
-    #         j = []
-    #         for (x, y) in path:
-    #             plt.scatter(y, x, color="red")
-    #             i.append(x)
-    #             j.append(y)
-    #         plt.plot(j,i, 'r')
-    #     plt.title("Map of the Environment")
-    #     # plt.grid(True)
-    #     plt.show()
-
-    # grid = create_grid()
-    # plot_grid(grid)
 
     def plan(self, grid, costs, start, goal):
         """

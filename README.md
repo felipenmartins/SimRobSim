@@ -63,6 +63,8 @@ While the simulator is running, you can press the following keys to change its b
 - **T**: toggle a **Triangle** to indicate the orientation of the robot
 - **W**: toggle displaying the **Waypoints** on the screen
 - **F**: toggle the controller to **Follow** the path defined by the waypoints
+- **=**: increase the robot speed
+- **-**: decrease the robot speed
 - **Q**: **Quit** the program
 
 ## Code Overview
@@ -77,7 +79,10 @@ The main components of the code are:
 
 ## To do
 
-There is a ton of things to do! For now, creating classes to separate the code into independent parts is the priority. The idea is:
+There is a ton of things to do! 
+
+- Fix the reaction to obstacle collision: at the moment, collision is only detected by checking the position of the center of the robot. Besides, the if the robot is moving backwards, it will cross the obstacle.
+- Organize the entire code in classes to separate the code into independent parts. The idea is:
 
 * Robot class
     - Have different robot names
