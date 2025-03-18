@@ -6,6 +6,7 @@ from obstacle_class import RectangularObstacle
 from obstacle_class import RectangularGridObstacle
 from path_follower_class import PathFollower
 from path_planner import Dijkstra
+from robot_class import Robot
 
 # pygame setup
 pygame.init()
@@ -80,9 +81,9 @@ path_follower = PathFollower(waypoints)
 
 # Test the robot object
 robot=Robot(dt)
-robot.set_pose((0,0,0))
-print(robot.move(100,0))
-print(robot.move(0,1))
+robot.set_pose([0,0,0])
+print(robot.move(lin_speed=100,ang_speed=0))
+print(robot.move(lin_speed=0,ang_speed=1))
 
 # Draw the robot
 # Make a copy of the robot_surface to rotate it with respect to the original one

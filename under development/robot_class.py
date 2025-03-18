@@ -23,18 +23,24 @@ class Robot:
         self.name=name
         self.company=company
         self.model=model
-        self.pose = (0,0,0)
+        self.pose = [0,0,0]
         self.robot_img = robot_img
         self.lin_speed = 0
         self.ang_speed = 0
         self.controller=Controller(self)
         self.planner=Planner(self)
 
-    def move(self, lin_speed=self.lin_speed, ang_speed=self.ang_speed, robot_pose=self.pose, dt=self.dt):
+    def move(self, **kwargs):
         '''
         Move the robot in the direction it is facing, then rotate it.
         Output its new pose.
         '''
+        # lin_speed=self.lin_speed, ang_speed=self.ang_speed, robot_pose=self.pose, dt=self.dt
+        lin_speed= kwargs.get('lin_speed', self.lin_speed)
+        ang_speed= kwargs.get('ang_speed', self.ang_speed)
+        robot_pose= kwargs.get('robot_pose', self.pose)
+        dt= kwargs.get('dt', self.dt)
+        
         # Limit the linear and angular speeds to the maximum values
         lin_speed = min(lin_speed, self.MAX_LIN_SPEED)
         lin_speed = max(lin_speed, -self.MAX_LIN_SPEED)
