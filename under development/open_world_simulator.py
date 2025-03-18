@@ -136,14 +136,17 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            robot_pos.x, robot_pos.y = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]
+            # robot_pos.x, robot_pos.y = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]
+            # robot.set_pose([pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1],robot.get_pose()[2]])
+            robot.set_position([pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]])
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             # Move the robot to the center of the screen and reset its orientation
             if keys[pygame.K_c]:
-                robot_pos.x = screen.get_width() / 2
-                robot_pos.y = screen.get_height() / 2
-                orientation = 0
+                robot.set_pose([screen.get_width() / 2,screen.get_height() / 2,0])
+                # robot_pos.x = screen.get_width() / 2
+                # robot_pos.y = screen.get_height() / 2
+                # orientation = 0
             # Toggle printing of robot position
             if keys[pygame.K_p]:
                 print_pos = not print_pos
@@ -221,7 +224,8 @@ while running:
     keys = pygame.key.get_pressed()
     # Move the robot
     if keys[pygame.K_UP]:
-        robot_pos = robot_linear_mov(LIN_SPEED, robot_pos)
+        # robot_pos = robot_linear_mov(LIN_SPEED, robot_pos)
+        robot_pos = robot.move(lin_speed=LIN_SPEED, ang_speed=0, robot_pose=robot_pos, dt=dt)
     if keys[pygame.K_DOWN]:
         robot_pos = robot_linear_mov(-LIN_SPEED, robot_pos)
     if keys[pygame.K_LEFT]:

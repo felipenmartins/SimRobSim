@@ -64,7 +64,18 @@ class Robot:
     def get_pose(self):
         return self.pose
     
-
+    def set_orientation(self, new_orientation):
+        self.pose[2]=new_orientation    
+        
+    def set_position(self, new_position):
+        self.pose[0:2]=new_position
+        
+    def get_position(self):
+        return self.pose[0:2]
+    
+    def get_orientation(self):
+        return self.pose[2]
+    
 class Diff_Drive(Robot):
     # ???
     pass
