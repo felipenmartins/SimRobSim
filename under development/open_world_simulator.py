@@ -17,9 +17,26 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 screen = pygame.display.set_mode((1280, 720)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
-obstacle_obj=RectangularGridObstacle()
+# Variables
+clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000  # delta_t = 60 ms 
+count_frames = 0 # Count the number of frames
+path = tuple() # Store the robot path
+collision_counter = 0
+TRIANG_SIZE = 15
+
+# Flags
+follow_path = False
+show_next_waypoint = True
+show_all_waypoints = True
+running = True  # Exit the program when False
+print_pos = True # Print the robot pose on the screen when True
+show_path = True # Show robot path on the screen when True
+draw_triangle = False # Draw a triangle to indicate the orientation of the robot
 
 # settign up the obstacles
+obstacle_obj=RectangularGridObstacle()
+
 obstacle1=RectangularObstacle((50,100),"black",100,100)
 obstacle2=RectangularObstacle((0,0),"black",50,500)
 obstacle3=RectangularObstacle((800,300),"black",500,100)
@@ -61,23 +78,11 @@ print(f"Waypoints: {waypoints}")
 # Create the path follower object
 path_follower = PathFollower(waypoints)
 
-# Variables
-# waypoints = [(700,300), (400,120), (282, 400), (700, 50), (700, 640)]
-clock = pygame.time.Clock()
-dt = clock.tick(60) / 1000  # delta_t = 60 ms 
-count_frames = 0 # Count the number of frames
-path = tuple() # Store the robot path
-collision_counter = 0
-TRIANG_SIZE = 15
-
-# Flags
-follow_path = False
-show_next_waypoint = True
-show_all_waypoints = True
-running = True  # Exit the program when False
-print_pos = True # Print the robot pose on the screen when True
-show_path = True # Show robot path on the screen when True
-draw_triangle = False # Draw a triangle to indicate the orientation of the robot
+# Test the robot object
+robot=Robot(dt)
+robot.set_pose((0,0,0))
+print(robot.move(100,0))
+print(robot.move(0,1))
 
 # Draw the robot
 # Make a copy of the robot_surface to rotate it with respect to the original one

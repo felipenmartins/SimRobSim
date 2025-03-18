@@ -3,7 +3,11 @@ from controller_class import Controller
 from planner_class import Planner
 import math
 
-class Robot(ABC):
+# class Robot(ABC):
+class Robot:
+    '''
+    A class to represent a robot.
+    '''
     MAX_LIN_SPEED = 100  # pixels per second
     MAX_ANG_SPEED = 1.58   # radians per second
     ROBOT_SIZE = 100    # not in use
