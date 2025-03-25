@@ -8,8 +8,8 @@ class Robot:
     '''
     A class to represent a robot.
     '''
-    MAX_LIN_SPEED = 100  # pixels per second
-    MAX_ANG_SPEED = 1.58   # radians per second
+    MAX_LIN_SPEED = 200  # pixels per second
+    MAX_ANG_SPEED = 3.14159265359   # radians per second
     ROBOT_SIZE = 100    # not in use
 
     def __init__(self, 
@@ -54,6 +54,9 @@ class Robot:
 
         # Limit the robot orientation to [-pi, pi]
         robot_pose[2] = (robot_pose[2] + math.pi) % (2 * math.pi) - math.pi
+
+        # Update the robot's pose
+        self.pose = robot_pose
 
         # Return the new pose
         return robot_pose
