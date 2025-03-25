@@ -52,16 +52,15 @@ class Robot:
         robot_pose[1] -= lin_speed * math.sin(robot_pose[2]) * dt
         robot_pose[2] += ang_speed * dt
 
-        # Limit the robot orientation to [-pi, pi]
-        robot_pose[2] = (robot_pose[2] + math.pi) % (2 * math.pi) - math.pi
-
         # Update the robot's pose
-        self.pose = robot_pose
+        self.set_pose(robot_pose)
 
         # Return the new pose
         return robot_pose
 
     def set_pose(self, new_pose):
+        # Limit the robot orientation to [-pi, pi]
+        new_pose[2] = (new_pose[2] + math.pi) % (2 * math.pi) - math.pi
         self.pose=new_pose
 
     def get_pose(self):
