@@ -38,13 +38,13 @@ draw_triangle = False # Draw a triangle to indicate the orientation of the robot
 # settign up the obstacles
 obstacle_obj=RectangularGridObstacle()
 
-obstacle1=RectangularObstacle((50,100),"black",100,100)
-obstacle2=RectangularObstacle((0,0),"black",50,500)
-obstacle3=RectangularObstacle((800,300),"black",500,100)
-obstacle4=RectangularObstacle((800,300),"black",100,300)
-obstacle5=RectangularObstacle((800,0),"black",100,200)
-obstacle6=RectangularObstacle((200,500),"black",300,100)
-obstacle7=RectangularObstacle((200,300),"black",100,300)
+obstacle1=RectangularObstacle((0,100),"dark blue",100,100)
+obstacle2=RectangularObstacle((0,0),"dark blue",50,500)
+obstacle3=RectangularObstacle((800,300),"dark blue",500,100)
+obstacle4=RectangularObstacle((800,300),"dark blue",100,300)
+obstacle5=RectangularObstacle((800,0),"dark blue",100,200)
+obstacle6=RectangularObstacle((200,500),"dark blue",300,100)
+obstacle7=RectangularObstacle((200,300),"dark blue",100,300)
 
 obstacles=[obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6, obstacle7]
 
@@ -53,7 +53,7 @@ LIN_SPEED = 100  # pixels per second
 ANG_SPEED = 1.58   # radians per second
 ROBOT_SIZE = 100    # not in use
 # robot_start_coords = (screen.get_width() / 2, screen.get_height() / 2)
-robot_start_coords =(100, 650) # Initial robot coordinates in pixels
+robot_start_coords =(50, 550) # Initial robot coordinates in pixels
 robot_goal_coords=(1100, 100)     # Goal coordinates in pixels
 robot_pos = pygame.Vector2(robot_start_coords)  # initial robot position
 orientation = 0  # initial robot orientation in radians
@@ -200,13 +200,22 @@ while running:
     # If final waypoint is reached, stop following the path
     if path_follower.is_at_final_waypoint:
         follow_path = False
+        # Reverse waypoints list
+        waypoints.reverse()
+        # Reset the next waypoint index
         path_follower.reset_next_waypoint_index()
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-    # Draw the grid
-    horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
-    vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
+    # Draw the center of the grid
+    # horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
+    # vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
+    # Draw a grid of 100x100 pixels
+    for i in range(0, screen.get_width(), 100):
+        pygame.draw.line(screen, "light gray", (i, 0), (i, screen.get_height()))
+    for i in range(0, screen.get_height(), 100):
+        pygame.draw.line(screen, "light gray", (0, i), (screen.get_width(), i))
+
 
     # Draw the waypoints
     if show_all_waypoints:
@@ -279,17 +288,17 @@ while running:
             print(f"{collision_counter} collisions detected.") 
             robot_pos = robot_linear_mov(-LIN_SPEED, robot_pos)
 
-    font = pygame.font.Font(None, 22)
-    text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 120))
-    screen.blit(text_i, (25, 10))
+    font = pygame.font.Font(None, 20)
+    text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 70))
+    screen.blit(text_i, (25, screen.get_height() - 15))
 
     if print_pos:
         # Print the robot position and orientation at the bottom of the screen
-        font = pygame.font.Font(None, 22)
-        text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (70, 70, 120))
-        screen.blit(text, (25, screen.get_height() - 20))
-        text = font.render(f"Linear speed: {LIN_SPEED} pixels/s; Angular speed: {int(ANG_SPEED * 180/math.pi)} degrees/s.", True, (70, 70, 120))
-        screen.blit(text, (500, screen.get_height() - 20))
+        font = pygame.font.Font(None, 20)
+        text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (70, 70, 70))
+        screen.blit(text, (25, screen.get_height() - 30))
+        text = font.render(f"Linear speed: {LIN_SPEED} pixels/s; Angular speed: {int(ANG_SPEED * 180/math.pi)} degrees/s.", True, (70, 70, 70))
+        screen.blit(text, (500, screen.get_height() - 30))
 
 
     # flip() the display to put your work on screen
