@@ -66,6 +66,21 @@ class Robot:
     def get_pose(self):
         return self.pose
     
+    def set_speed(self, **kwargs):
+        '''
+        Set robot speeds: linear and angular.
+        Does not return anything.
+        '''
+        # lin_speed=self.lin_speed, ang_speed=self.ang_speed
+        lin_speed= kwargs.get('lin_speed', self.lin_speed)
+        ang_speed= kwargs.get('ang_speed', self.ang_speed)
+
+        # Limit the linear and angular speeds to the maximum values
+        lin_speed = min(lin_speed, self.MAX_LIN_SPEED)
+        self.lin_speed = max(lin_speed, 0)
+        ang_speed = min(ang_speed, self.MAX_ANG_SPEED)
+        self.ang_speed = max(ang_speed, -self.MAX_ANG_SPEED)
+    
 
 class Diff_Drive(Robot):
     # ???

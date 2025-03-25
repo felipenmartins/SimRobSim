@@ -65,6 +65,7 @@ goal_path = (robot_goal_coords[0]//100, robot_goal_coords[1]//100)
 path_planner = Dijkstra(start_path, goal_path,obstacle_obj)
 path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
 print(f"Path: {path_planned}")
+reversed_path = False   # Flag to indicate if the path is reversed
 
 # Get waypoints in pixels (scale to the screen)
 waypoints = []
@@ -78,10 +79,7 @@ path_follower = PathFollower(waypoints)
 # Create robot object
 robot=Robot(dt)
 robot.set_pose([robot_start_coords[0], robot_start_coords[1], orientation])
-# print(robot.move(lin_speed=100,ang_speed=0))
-# print(robot.move(lin_speed=0,ang_speed=1))
-lin_speed = robot.MAX_LIN_SPEED/2  # pixels per second 
-ang_speed = robot.MAX_ANG_SPEED/2  # radians per second 
+robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
 
 # Create robot surface and rectangle for simulation
 robot_surface = pygame.image.load(robot.robot_img).convert_alpha()
@@ -93,31 +91,6 @@ robot_rect.center = robot_pos
 new_robot_surface = pygame.transform.rotate(robot_surface, orientation%360)
 new_robot_rect = new_robot_surface.get_rect()
 new_robot_rect.center = robot_pos
-
-
-# ----------------------	
-# Moving Functions are being replaced by the new robot class
-
-# def robot_linear_mov(lin_speed, robot_pos):
-#     '''Apply linear movement to the robot at desired linear speed 
-#     and return new reobot position.'''
-#     robot_pos.x += lin_speed * math.cos(orientation) * dt
-#     robot_pos.y -= lin_speed * math.sin(orientation) * dt
-
-#     return robot_pos
-
-
-# def robot_angular_mov(ang_speed, orientation):
-#     '''Apply angular movement to the robot at desired angular speed
-#     and return new robot orientation.'''
-#     orientation += ang_speed * dt
-#     if orientation > math.pi:
-#         orientation -= 2 * math.pi
-#     elif orientation < - math.pi:
-#         orientation += 2 * math.pi
-
-#     return orientation
-# ----------------------
 
 # Print instructions to control the robot and interact with the simulator
 print("Welcome to the Simple Robot Simulator!")
@@ -159,12 +132,14 @@ while running:
                 path = tuple()
                 path_follower.next_waypoint = 0 # index of the next waypoint
                 robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
-                lin_speed = robot.MAX_LIN_SPEED/2  # pixels per second
-                ang_speed = robot.MAX_ANG_SPEED/2  # radians per second
+                robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
+                # If path has been reversed, reverse it back
+                if reversed_path:
+                    waypoints.reverse()
+                    reversed_path = not reversed_path
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
-                orientation += math.pi/2
-                robot.set_pose([robot_pos.x, robot_pos.y, orientation])
+                robot.set_pose([robot.get_pose()[0], robot.get_pose()[1], robot.get_pose()[2] + math.pi/2])
             # Draw a triangle to indicate the orientation of the robot
             if keys[pygame.K_t]:
                 draw_triangle = not draw_triangle
@@ -179,26 +154,20 @@ while running:
                 show_next_waypoint = not show_next_waypoint
             # Change robot speeds by pressing + and -
             if keys[pygame.K_EQUALS]:
-                lin_speed += 10
-                ang_speed += 0.1
+                robot.set_speed(lin_speed=robot.lin_speed+10, ang_speed=robot.ang_speed+0.1)
             if keys[pygame.K_MINUS]:
-                lin_speed -= 10
-                if lin_speed < 0:
-                    lin_speed = 0
-                ang_speed -= 0.1
-                if ang_speed < 0:
-                    ang_speed = 0
+                robot.set_speed(lin_speed=robot.lin_speed-10, ang_speed=robot.ang_speed-0.1)
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
 
-    # Update robot_pos and orientation variables
+    # # Update robot_pos and orientation variables
     robot_pos[0], robot_pos[1], orientation = robot.get_pose()
 
     # If the robot is moving, store its position in the path list and update the previous robot position
-    if ((int(robot_pos.x) != prev_robot_pos[0]) or (int(robot_pos.y) != prev_robot_pos[1])):
-        path += ((int(robot_pos.x), int(robot_pos.y)),)
-        prev_robot_pos = (int(robot_pos.x), int(robot_pos.y))
+    if ((int(robot.get_pose()[0]) != prev_robot_pos[0]) or (int(robot.get_pose()[1]) != prev_robot_pos[1])):
+        path += ((int(robot.get_pose()[0]), int(robot.get_pose()[1])),)
+        prev_robot_pos = (int(robot.get_pose()[0]), int(robot.get_pose()[1]))
         prev_robot_orientation = orientation
 
     # If final waypoint is reached, stop following the path and reverse the waypoints list
@@ -206,6 +175,7 @@ while running:
         follow_path = False
         # Reverse waypoints list
         waypoints.reverse()
+        reversed_path = not reversed_path
         # Reset the next waypoint index
         path_follower.reset_next_waypoint_index()
 
@@ -236,19 +206,19 @@ while running:
     keys = pygame.key.get_pressed()
     # Move the robot
     if keys[pygame.K_UP]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=LIN_SPEED, ang_speed=0)
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=abs(robot.lin_speed), ang_speed=0)
     if keys[pygame.K_DOWN]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-LIN_SPEED, ang_speed=0)
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-abs(robot.lin_speed), ang_speed=0)
     if keys[pygame.K_LEFT]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=ANG_SPEED)
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=abs(robot.ang_speed))
     if keys[pygame.K_RIGHT]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=-ANG_SPEED)
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=-abs(robot.ang_speed))
 
     # let path follwer change the robot position
     if follow_path:
         # Linear speed is constant; Angular speed depends on the next waypoint
-        ang_speed = path_follower.generate_angular_move(robot_pos, orientation)
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=lin_speed, ang_speed=ang_speed)
+        robot.ang_speed = path_follower.generate_angular_move(robot_pos, orientation)
+        robot_pos[0], robot_pos[1], orientation = robot.move()
 
 
     # Limit the robot position to the screen
@@ -288,12 +258,13 @@ while running:
         collide = obstacle.obs.collidepoint(robot_pos) # Center of the robot
         # Check other points around the robot
 
-        # If collide after moving, move backwards with the same speed    
+        # If collide after moving, move with negative speed of same amplitude
         if collide:
             collision_counter += 1
             print(f"{collision_counter} collisions detected.") 
-            # robot_pos = robot_linear_mov(-LIN_SPEED, robot_pos)
-            robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-lin_speed, ang_speed=-ang_speed)
+            # Apply negative speed to return to non-collision state. 
+            # *** Does NOT work for collisions in manual mode with negative linear speed! ***
+            robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-robot.lin_speed, ang_speed=-robot.ang_speed)
 
     font = pygame.font.Font(None, 20)
     text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 70))
@@ -304,9 +275,8 @@ while running:
         font = pygame.font.Font(None, 22)
         text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (70, 70, 70))
         screen.blit(text, (25, screen.get_height() - 30))
-        text = font.render(f"Linear speed: {lin_speed} pixels/s; Angular speed: {int(ang_speed * 180/math.pi)} degrees/s.", True, (70, 70, 70))
+        text = font.render(f"Linear speed: {robot.lin_speed} pixels/s; Angular speed: {int(robot.ang_speed * 180/math.pi)} degrees/s.", True, (70, 70, 70))
         screen.blit(text, (500, screen.get_height() - 30))
-
 
     # flip() the display to put your work on screen
     pygame.display.flip()
