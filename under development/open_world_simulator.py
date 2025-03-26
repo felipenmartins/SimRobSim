@@ -1,6 +1,5 @@
-# Example file showing a circle moving on screen
 import pygame
-from pygame.mixer_music import play
+# from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
 from obstacle_class import RectangularGridObstacle
@@ -15,7 +14,7 @@ pygame.display.set_caption("Simple Robot Simulator")
 pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 
 # Create the screen
-screen = pygame.display.set_mode((1280, 720)) # width, height
+screen = pygame.display.set_mode((1300, 700)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
 # Variables
@@ -164,12 +163,6 @@ while running:
     # # Update robot_pos and orientation variables
     robot_pos[0], robot_pos[1], orientation = robot.get_pose()
 
-    # If the robot is moving, store its position in the path list and update the previous robot position
-    if ((int(robot.get_pose()[0]) != prev_robot_pos[0]) or (int(robot.get_pose()[1]) != prev_robot_pos[1])):
-        path += ((int(robot.get_pose()[0]), int(robot.get_pose()[1])),)
-        prev_robot_pos = (int(robot.get_pose()[0]), int(robot.get_pose()[1]))
-        prev_robot_orientation = orientation
-
     # If final waypoint is reached, stop following the path and reverse the waypoints list
     if path_follower.is_at_final_waypoint:
         follow_path = False
@@ -285,5 +278,11 @@ while running:
     # dt is delta time in seconds since last frame, used for framerate-independent physics.
     dt = clock.tick(100) / 1000
     count_frames += 1 # Increment the frame counter
+
+    # If the robot is moving, store its position in the path list and update the previous robot position
+    if ((int(robot.get_pose()[0]) != prev_robot_pos[0]) or (int(robot.get_pose()[1]) != prev_robot_pos[1])):
+        path += ((int(robot.get_pose()[0]), int(robot.get_pose()[1])),)
+        prev_robot_pos = (int(robot.get_pose()[0]), int(robot.get_pose()[1]))
+        prev_robot_orientation = robot.get_pose()[2]
 
 pygame.quit()
