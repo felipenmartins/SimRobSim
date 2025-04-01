@@ -14,10 +14,18 @@ pygame.mouse.set_visible(True)
 pygame.display.set_caption("Simple Robot Simulator")
 pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 
+running = True  # Exit the program when False
+
 # Create the screen
 screen = pygame.display.set_mode((1300, 700)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
+# Function to call when button is clicked
+def on_click_quit_button():
+    print("Quitting application")
+    running=False
+
+quit_button= Button(position=(450, 200), size=(120, 50), clr=[100, 100, 255], cngclr=[255, 100, 100], func=on_click_quit_button, text="Quit")
 # Variables
 clock = pygame.time.Clock()
 dt = clock.tick(60) / 1000  # delta_t = 60 ms 
@@ -30,7 +38,7 @@ TRIANG_SIZE = 15
 follow_path = False
 show_next_waypoint = True
 show_all_waypoints = True
-running = True  # Exit the program when False
+
 print_pos = True # Print the robot pose on the screen when True
 show_path = True # Show robot path on the screen when True
 draw_triangle = False # Draw a triangle to indicate the orientation of the robot
@@ -109,6 +117,8 @@ print("Press 'q' to Quit the program.")
 # Main loop
 
 while running:
+
+    
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -116,6 +126,10 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+            if quit_button.rect.collidepoint(event.pos):
+                quit_button.call_back()  # Call the function when clicked
+
+
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             # Move the robot to the center of the screen and reset its orientation
@@ -160,6 +174,8 @@ while running:
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
+                
+
 
     # # Update robot_pos and orientation variables
     robot_pos[0], robot_pos[1], orientation = robot.get_pose()
@@ -176,6 +192,7 @@ while running:
     # Draw the screen
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
+    quit_button.draw(screen)
 
     # Draw the center of the grid
     # horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))

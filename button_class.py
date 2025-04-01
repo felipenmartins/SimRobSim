@@ -2,7 +2,7 @@ import pygame
 from text_class import Text
 
 class Button:
-    def __init__(self, position, size, clr=[100, 100, 100], cngclr=None, func=None, text='', font="Segoe Print", font_size=16, font_clr=[0, 0, 0]):
+    def __init__(self, position=(0,0), size=(50,50), clr=[100, 100, 100], cngclr=None, func=None, text='', font="Segoe Print", font_size=16, font_clr=[0, 0, 0]):
         self.clr    = clr
         self.size   = size
         self.func   = func
