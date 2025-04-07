@@ -128,7 +128,7 @@ while running:
             robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
             if quit_button.rect.collidepoint(event.pos):
                 quit_button.call_back()  # Call the function when clicked
-
+                running = False
 
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
@@ -192,7 +192,7 @@ while running:
     # Draw the screen
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-    quit_button.draw(screen)
+    # quit_button.draw(screen)
 
     # Draw the center of the grid
     # horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
@@ -277,16 +277,21 @@ while running:
             # *** Does NOT work for collisions in manual mode with negative linear speed! ***
             robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-robot.lin_speed, ang_speed=-robot.ang_speed)
 
-    font = pygame.font.Font(None, 20)
-    text_i = font.render("Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose, 'S' to show path, 'R' to Reset path, 'W' to show waypoints, 'F' to follow path, 'Q' to quit.", True, (70, 70, 70))
+    font_size = int(screen.get_height() * 0.03)  # 3% of screen height
+    font = pygame.font.Font(None, font_size)
+    instructions = (
+        "Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose,"
+        "'S' to show path, 'R' to Reset path, 'W' to show waypoints, "
+        "'F' to follow path, 'Q' to quit."
+    )    
+    text_i = font.render(instructions, True, (50, 50, 70))
     screen.blit(text_i, (25, screen.get_height() - 15))
 
     if print_pos:
         # Print the robot position and orientation at the bottom of the screen
-        font = pygame.font.Font(None, 22)
-        text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (70, 70, 70))
+        text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (50, 50, 70))
         screen.blit(text, (25, screen.get_height() - 30))
-        text = font.render(f"Linear speed: {robot.lin_speed} pixels/s; Angular speed: {int(robot.ang_speed * 180/math.pi)} degrees/s.", True, (70, 70, 70))
+        text = font.render(f"Linear speed: {robot.lin_speed} pixels/s; Angular speed: {int(robot.ang_speed * 180/math.pi)} degrees/s.", True, (50, 50, 70))
         screen.blit(text, (500, screen.get_height() - 30))
 
     # flip() the display to put your work on screen
