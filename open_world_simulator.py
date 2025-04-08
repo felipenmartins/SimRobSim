@@ -17,15 +17,59 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 running = True  # Exit the program when False
 
 # Create the screen
-screen = pygame.display.set_mode((1300, 700)) # width, height
+screen = pygame.display.set_mode((1450, 750)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
-# Function to call when button is clicked
-def on_click_quit_button():
+# -------------- Buttons --------------
+BUTTONS_AREA_SIZE = 150 # Width of the buttons area
+
+# Functions to call when buttons are clicked
+
+def on_click_quit_b():
     print("Quitting application")
     running=False
 
-quit_button= Button(position=(450, 200), size=(120, 50), clr=[100, 100, 255], cngclr=[255, 100, 100], func=on_click_quit_button, text="Quit")
+def on_click_center_b():
+    print("Quitting application")
+    running=False
+
+def on_click_rotate_b():
+    print("Quitting application")
+    running=False
+
+def on_click_reset_b():
+    print("Quitting application")
+    running=False
+
+def on_click_showPath_b():
+    print("Quitting application")
+    running=False
+
+def on_click_followPath_b():
+    print("Quitting application")
+    running=False
+
+def on_click_waypoints_b():
+    print("Quitting application")
+    running=False
+
+# Button colors
+B_PURPLE = [100, 100, 255]
+B_BLUE = [50, 50, 255]
+B_PINK = [255, 100, 100]
+B_GREEN = [100, 255, 100]
+
+# Create buttons
+quit_button= Button(size=(120, 50), clr=B_PURPLE, cngclr=B_PINK, func=on_click_quit_b, text="Quit", font_size=20)
+center_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_center_b, text="Center")
+rotate_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_rotate_b, text="rotate 90°")
+reset_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_reset_b, text="Reset")
+showPath_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_showPath_b, text="Show path")
+followPath_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_followPath_b, text="Follow path")
+waypoints_button= Button(size=(120, 50), clr=B_BLUE, cngclr=B_GREEN, func=on_click_waypoints_b, text="show Waypoints")
+# --------------------------------------
+
+
 # Variables
 clock = pygame.time.Clock()
 dt = clock.tick(60) / 1000  # delta_t = 60 ms 
@@ -125,7 +169,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+            # Move robot only if mouse clicked inside the screen
+            if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
             if quit_button.rect.collidepoint(event.pos):
                 quit_button.call_back()  # Call the function when clicked
                 running = False
@@ -192,8 +238,7 @@ while running:
     # Draw the screen
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-    # quit_button.draw(screen)
-
+    
     # Draw the center of the grid
     # horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
     # vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
@@ -233,8 +278,8 @@ while running:
 
 
     # Limit the robot position to the screen
-    if robot_pos.x > screen.get_width():
-        robot.set_pose([screen.get_width(), robot_pos.y, orientation])
+    if robot_pos.x > screen.get_width() - BUTTONS_AREA_SIZE:
+        robot.set_pose([screen.get_width() - BUTTONS_AREA_SIZE, robot_pos.y, orientation])
     if robot_pos.y > screen.get_height():
         robot.set_pose([robot_pos.x, screen.get_height(), orientation])
     if robot_pos.x < 0:
@@ -293,6 +338,27 @@ while running:
         screen.blit(text, (25, screen.get_height() - 30))
         text = font.render(f"Linear speed: {robot.lin_speed} pixels/s; Angular speed: {int(robot.ang_speed * 180/math.pi)} degrees/s.", True, (50, 50, 70))
         screen.blit(text, (500, screen.get_height() - 30))
+
+    # Draw the buttons area
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE, 0), (screen.get_width() - BUTTONS_AREA_SIZE, screen.get_height()))    
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE + 2, 0), (screen.get_width() - BUTTONS_AREA_SIZE + 2, screen.get_height()))    
+
+    # Draw buttons at the bottom of the screen
+    quit_button.rect.topleft = (screen.get_width() - quit_button.rect.width - 10, screen.get_height() - quit_button.rect.height - 10)
+    quit_button.draw(screen)
+    center_button.rect.topleft = (screen.get_width() - center_button.rect.width - 10, screen.get_height() - center_button.rect.height - 70)
+    center_button.draw(screen)
+    rotate_button.rect.topleft = (screen.get_width() - rotate_button.rect.width - 10, screen.get_height() - rotate_button.rect.height - 130)
+    rotate_button.draw(screen)
+    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, screen.get_height() - reset_button.rect.height - 190)
+    reset_button.draw(screen)
+    showPath_button.rect.topleft = (screen.get_width() - showPath_button.rect.width - 10, screen.get_height() - showPath_button.rect.height - 250)
+    showPath_button.draw(screen)
+    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, screen.get_height() - followPath_button.rect.height - 310)
+    followPath_button.draw(screen)
+    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, screen.get_height() - waypoints_button.rect.height - 370)
+    waypoints_button.draw(screen)
+
 
     # flip() the display to put your work on screen
     pygame.display.flip()
