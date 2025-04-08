@@ -17,15 +17,38 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 running = True  # Exit the program when False
 
 # Create the screen
-screen = pygame.display.set_mode((1300, 700)) # width, height
+screen = pygame.display.set_mode((1450, 700)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
-# Function to call when button is clicked
-def on_click_quit_button():
-    print("Quitting application")
-    running=False
+# -------------- Buttons --------------
+BUTTONS_AREA_SIZE = 150 # Width of the buttons area
 
-quit_button= Button(position=(450, 200), size=(120, 50), clr=[100, 100, 255], cngclr=[255, 100, 100], func=on_click_quit_button, text="Quit")
+# Functions to call when buttons are clicked
+
+# def on_click_quit_b():
+#     # Change the global variable running to False to exit the program
+#     global running
+#     running = False
+
+
+# Button colors
+B_PURPLE = [100, 100, 255]
+B_BLUE = [50, 50, 255]
+B_PINK = [255, 100, 100]
+B_RED = [255, 0, 0]
+B_GREEN = [100, 255, 100]
+
+# Create buttons
+quit_button = Button(size=(120, 50), clr=B_PINK, cngclr=B_RED, text="Quit", font_size=20)
+center_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Center")
+rotate_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="rot. 90°")
+reset_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Reset")
+showPath_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Show path")
+followPath_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Follow path")
+waypoints_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Waypoints")
+# --------------------------------------
+
+
 # Variables
 clock = pygame.time.Clock()
 dt = clock.tick(60) / 1000  # delta_t = 60 ms 
@@ -35,13 +58,15 @@ collision_counter = 0
 TRIANG_SIZE = 15
 
 # Flags
-follow_path = False
 show_next_waypoint = True
 show_all_waypoints = True
-
-print_pos = True # Print the robot pose on the screen when True
 show_path = True # Show robot path on the screen when True
+follow_path = False # Follow the path when True 
+print_pos = True # Print the robot pose on the screen when True
 draw_triangle = False # Draw a triangle to indicate the orientation of the robot
+center_robot = False # Center the robot when True
+reset_robot = False # Reset the robot when True
+rotate_robot_90 = False # Rotate the robot when True
 
 # settign up the obstacles ----------> To do: Create obstacles in the grid via mouse click
 obstacle_obj=RectangularGridObstacle()
@@ -102,16 +127,16 @@ new_robot_rect.center = robot_pos
 
 # Print instructions to control the robot and interact with the simulator
 print("Welcome to the Simple Robot Simulator!")
-print("Use the arrow keys to move the robot.")
-print("Press 'c' to move the robot to the Center of the screen.")
-print("Press '9' to rotate the robot by 90 degrees.")
-print("Press 'p' to toggle Printing the robot position.")
-print("Press 's' to toggle Showing the robot path.")
-print("Press 'r' to Reset (clear) the robot path.")
-print("Press 't' to draw a Triangle to indicate the orientation of the robot.")
-print("Press 'f' to Follow the path defined by the waypoints.")
-print("Press 'w' to show the Waypoints on the screen.")
-print("Press 'q' to Quit the program.")
+print("Use the arrow keys to move the robot or the buttons to control the simulator.")
+# print("Press 'c' to move the robot to the Center of the screen.")
+# print("Press '9' to rotate the robot by 90 degrees.")
+# print("Press 'p' to toggle Printing the robot position.")
+# print("Press 's' to toggle Showing the robot path.")
+# print("Press 'r' to Reset (clear) the robot path.")
+# print("Press 't' to draw a Triangle to indicate the orientation of the robot.")
+# print("Press 'f' to Follow the path defined by the waypoints.")
+# print("Press 'w' to show the Waypoints on the screen.")
+# print("Press 'q' to Quit the program.")
 
 
 # Main loop
@@ -125,16 +150,29 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+            # Move robot only if mouse clicked inside the screen
+            if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
             if quit_button.rect.collidepoint(event.pos):
-                quit_button.call_back()  # Call the function when clicked
                 running = False
+            if center_button.rect.collidepoint(event.pos):
+                center_robot = True
+            if rotate_button.rect.collidepoint(event.pos):
+                rotate_robot_90 = True
+            if reset_button.rect.collidepoint(event.pos):
+                reset_robot = True
+            if showPath_button.rect.collidepoint(event.pos):
+                show_path = not show_path
+            if followPath_button.rect.collidepoint(event.pos):	
+                follow_path = not follow_path
+            if waypoints_button.rect.collidepoint(event.pos):
+                show_all_waypoints = not show_all_waypoints
 
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             # Move the robot to the center of the screen and reset its orientation
             if keys[pygame.K_c]:
-                robot.set_pose([screen.get_width() / 2, screen.get_height() / 2, 0])
+                center_robot = True
             # Toggle printing of robot position
             if keys[pygame.K_p]:
                 print_pos = not print_pos
@@ -143,17 +181,10 @@ while running:
                 show_path = not show_path
             # Clear the robot path and achieved waypoints
             if keys[pygame.K_r]:
-                path = tuple()
-                path_follower.next_waypoint = 0 # index of the next waypoint
-                robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
-                robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
-                # If path has been reversed, reverse it back
-                if reversed_path:
-                    waypoints.reverse()
-                    reversed_path = not reversed_path
+                reset_robot = True
             # Rotate the robot by 90 degrees
             if keys[pygame.K_9]:
-                robot.set_pose([robot.get_pose()[0], robot.get_pose()[1], robot.get_pose()[2] + math.pi/2])
+                rotate_robot_90 = True
             # Draw a triangle to indicate the orientation of the robot
             if keys[pygame.K_t]:
                 draw_triangle = not draw_triangle
@@ -174,8 +205,26 @@ while running:
             # Quit the program
             if keys[pygame.K_q]:
                 running = False
-                
+    
+    # Test flags and execute corresponding actions
+    if center_robot:
+        robot.set_pose([screen.get_width() / 2, screen.get_height() / 2, 0])
+        center_robot = False
 
+    if reset_robot:
+        path = tuple()
+        path_follower.next_waypoint = 0 # index of the next waypoint
+        robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
+        robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
+        # If path has been reversed, reverse it back
+        if reversed_path:
+            waypoints.reverse()
+            reversed_path = not reversed_path
+        reset_robot = False
+
+    if rotate_robot_90:
+        robot.set_pose([robot.get_pose()[0], robot.get_pose()[1], robot.get_pose()[2] + math.pi/2])
+        rotate_robot_90 = False
 
     # # Update robot_pos and orientation variables
     robot_pos[0], robot_pos[1], orientation = robot.get_pose()
@@ -192,8 +241,7 @@ while running:
     # Draw the screen
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-    # quit_button.draw(screen)
-
+    
     # Draw the center of the grid
     # horizontal_line = pygame.draw.line(screen, "gray", (0, screen.get_height() / 2), (screen.get_width(), screen.get_height() / 2))
     # vertical_line = pygame.draw.line(screen, "gray", (screen.get_width() / 2, 0), (screen.get_width() / 2, screen.get_height()))    
@@ -233,8 +281,8 @@ while running:
 
 
     # Limit the robot position to the screen
-    if robot_pos.x > screen.get_width():
-        robot.set_pose([screen.get_width(), robot_pos.y, orientation])
+    if robot_pos.x > screen.get_width() - BUTTONS_AREA_SIZE:
+        robot.set_pose([screen.get_width() - BUTTONS_AREA_SIZE, robot_pos.y, orientation])
     if robot_pos.y > screen.get_height():
         robot.set_pose([robot_pos.x, screen.get_height(), orientation])
     if robot_pos.x < 0:
@@ -279,20 +327,42 @@ while running:
 
     font_size = int(screen.get_height() * 0.03)  # 3% of screen height
     font = pygame.font.Font(None, font_size)
-    instructions = (
-        "Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose,"
-        "'S' to show path, 'R' to Reset path, 'W' to show waypoints, "
-        "'F' to follow path, 'Q' to quit."
-    )    
-    text_i = font.render(instructions, True, (50, 50, 70))
-    screen.blit(text_i, (25, screen.get_height() - 15))
+
+    # instructions = (
+    #     "Use the arrow keys. Press 'C' to center, '9' to rotate 90 degrees, 'P' to print pose,"
+    #     "'S' to show path, 'R' to Reset path, 'W' to show waypoints, "
+    #     "'F' to follow path, 'Q' to quit."
+    # )    
+    # text_i = font.render(instructions, True, (50, 50, 70))
+    # screen.blit(text_i, (25, screen.get_height() - 30))
 
     if print_pos:
         # Print the robot position and orientation at the bottom of the screen
         text = font.render(f"Robot position: {int(robot_pos.x), int(robot_pos.y)} pixels; orientation: {int(orientation * 180/math.pi)} degrees.", True, (50, 50, 70))
-        screen.blit(text, (25, screen.get_height() - 30))
+        screen.blit(text, (25, screen.get_height() - 15))
         text = font.render(f"Linear speed: {robot.lin_speed} pixels/s; Angular speed: {int(robot.ang_speed * 180/math.pi)} degrees/s.", True, (50, 50, 70))
-        screen.blit(text, (500, screen.get_height() - 30))
+        screen.blit(text, (500, screen.get_height() - 15))
+
+    # Draw the buttons area
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE, 0), (screen.get_width() - BUTTONS_AREA_SIZE, screen.get_height()))    
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE + 2, 0), (screen.get_width() - BUTTONS_AREA_SIZE + 2, screen.get_height()))    
+
+    # Draw buttons
+    quit_button.rect.topleft = (screen.get_width() - quit_button.rect.width - 10, screen.get_height() - quit_button.rect.height - 10)
+    quit_button.draw(screen)
+    center_button.rect.topleft = (screen.get_width() - center_button.rect.width - 10, center_button.rect.height - 40)
+    center_button.draw(screen)
+    rotate_button.rect.topleft = (screen.get_width() - rotate_button.rect.width - 10, rotate_button.rect.height + 20)
+    rotate_button.draw(screen)
+    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, reset_button.rect.height + 80)
+    reset_button.draw(screen)
+    showPath_button.rect.topleft = (screen.get_width() - showPath_button.rect.width - 10, showPath_button.rect.height + 140)
+    showPath_button.draw(screen)
+    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, followPath_button.rect.height + 200)
+    followPath_button.draw(screen)
+    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, waypoints_button.rect.height + 260)
+    waypoints_button.draw(screen)
+
 
     # flip() the display to put your work on screen
     pygame.display.flip()
