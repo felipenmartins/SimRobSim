@@ -1,5 +1,4 @@
 import pygame
-# from pygame.mixer_music import play
 import math
 from obstacle_class import RectangularObstacle
 from obstacle_class import RectangularGridObstacle
@@ -37,15 +36,20 @@ B_BLUE = [50, 50, 255]
 B_PINK = [255, 100, 100]
 B_RED = [255, 0, 0]
 B_GREEN = [100, 255, 100]
+B_YELLOW = [255, 255, 100]  
 
 # Create buttons
 quit_button = Button(size=(120, 50), clr=B_PINK, cngclr=B_RED, text="Quit", font_size=20)
-center_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Center")
-rotate_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="rot. 90°")
-reset_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Reset")
-showPath_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Show path")
-followPath_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Follow path")
-waypoints_button = Button(size=(120, 50), clr=B_PURPLE, cngclr=B_GREEN, text="Waypoints")
+center_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Center")
+rotate_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="rot. 90°")
+reset_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Reset")
+showPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Show path")
+followPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Follow path")
+waypoints_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Waypoints")
+place_robot_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Place robot")
+initial_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Init position")
+goal_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Goal position")
+
 # --------------------------------------
 
 
@@ -67,6 +71,7 @@ draw_triangle = False # Draw a triangle to indicate the orientation of the robot
 center_robot = False # Center the robot when True
 reset_robot = False # Reset the robot when True
 rotate_robot_90 = False # Rotate the robot when True
+place_robot = False # Place the robot when True
 
 # settign up the obstacles ----------> To do: Create obstacles in the grid via mouse click
 obstacle_obj=RectangularGridObstacle()
@@ -150,9 +155,11 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Move robot only if mouse clicked inside the screen
-            if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
-                robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+            # Move robot only if place_robot is True and mouse clicked inside the screen
+            if place_robot:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                    robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+                place_robot = False
             if quit_button.rect.collidepoint(event.pos):
                 running = False
             if center_button.rect.collidepoint(event.pos):
@@ -167,6 +174,8 @@ while running:
                 follow_path = not follow_path
             if waypoints_button.rect.collidepoint(event.pos):
                 show_all_waypoints = not show_all_waypoints
+            if place_robot_button.rect.collidepoint(event.pos):
+                place_robot = True
 
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
@@ -206,6 +215,24 @@ while running:
             if keys[pygame.K_q]:
                 running = False
     
+    # Adjust button colors according to the flags
+    if show_path:
+        showPath_button.clr = B_GREEN
+    else:
+        showPath_button.clr = B_PURPLE
+    if follow_path:
+        followPath_button.clr = B_GREEN
+    else:
+        followPath_button.clr = B_PURPLE
+    if show_all_waypoints:
+        waypoints_button.clr = B_GREEN
+    else:
+        waypoints_button.clr = B_PURPLE
+    if place_robot:
+        place_robot_button.clr = B_GREEN
+    else:
+        place_robot_button.clr = B_PURPLE
+
     # Test flags and execute corresponding actions
     if center_robot:
         robot.set_pose([screen.get_width() / 2, screen.get_height() / 2, 0])
@@ -348,21 +375,24 @@ while running:
     pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE + 2, 0), (screen.get_width() - BUTTONS_AREA_SIZE + 2, screen.get_height()))    
 
     # Draw buttons
-    quit_button.rect.topleft = (screen.get_width() - quit_button.rect.width - 10, screen.get_height() - quit_button.rect.height - 10)
-    quit_button.draw(screen)
-    center_button.rect.topleft = (screen.get_width() - center_button.rect.width - 10, center_button.rect.height - 40)
+    center_button.rect.topleft = (screen.get_width() - center_button.rect.width - 10, center_button.rect.height - 20)
     center_button.draw(screen)
     rotate_button.rect.topleft = (screen.get_width() - rotate_button.rect.width - 10, rotate_button.rect.height + 20)
     rotate_button.draw(screen)
-    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, reset_button.rect.height + 80)
-    reset_button.draw(screen)
+    place_robot_button.rect.topleft = (screen.get_width() - place_robot_button.rect.width - 10, place_robot_button.rect.height + 60)
+    place_robot_button.draw(screen)
+
     showPath_button.rect.topleft = (screen.get_width() - showPath_button.rect.width - 10, showPath_button.rect.height + 140)
     showPath_button.draw(screen)
-    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, followPath_button.rect.height + 200)
+    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, followPath_button.rect.height + 180)
     followPath_button.draw(screen)
-    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, waypoints_button.rect.height + 260)
+    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, waypoints_button.rect.height + 220)
     waypoints_button.draw(screen)
+    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, reset_button.rect.height + 260)
+    reset_button.draw(screen)
 
+    quit_button.rect.topleft = (screen.get_width() - quit_button.rect.width - 10, screen.get_height() - quit_button.rect.height - 10)
+    quit_button.draw(screen)
 
     # flip() the display to put your work on screen
     pygame.display.flip()
