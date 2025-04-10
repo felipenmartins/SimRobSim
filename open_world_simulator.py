@@ -47,8 +47,8 @@ showPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Sh
 followPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Follow path")
 waypoints_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Waypoints")
 place_robot_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Place robot")
-initial_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Init position")
-goal_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Goal position")
+start_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Start pos.")
+goal_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Goal pos.")
 
 # --------------------------------------
 
@@ -63,7 +63,7 @@ TRIANG_SIZE = 15
 
 # Flags
 show_next_waypoint = True
-show_all_waypoints = True
+show_all_waypoints = False
 show_path = True # Show robot path on the screen when True
 follow_path = False # Follow the path when True 
 print_pos = True # Print the robot pose on the screen when True
@@ -72,6 +72,8 @@ center_robot = False # Center the robot when True
 reset_robot = False # Reset the robot when True
 rotate_robot_90 = False # Rotate the robot when True
 place_robot = False # Place the robot when True
+start_pos = False # Set the initial position when True
+goal_pos = False # Set the goal position when True
 
 # settign up the obstacles ----------> To do: Create obstacles in the grid via mouse click
 obstacle_obj=RectangularGridObstacle()
@@ -100,7 +102,20 @@ prev_robot_pos = (robot_pos.x, robot_pos.y) # Store the previous robot position
 # Create path planning object
 start_path = (robot_start_coords[0]//100, robot_start_coords[1]//100)
 goal_path = (robot_goal_coords[0]//100, robot_goal_coords[1]//100)
-path_planner = Dijkstra(start_path, goal_path,obstacle_obj)
+
+# Function to plan the path algorithm and extract the waypoints
+def plan_path(start, goal, obstacle_obj):
+    path_planner = Dijkstra(start, goal, obstacle_obj)
+    path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
+    waypoints = []
+    for p in path_planned:
+        waypoints.append((p[0]*100 + 50, p[1]*100 + 50))
+    print(f"Waypoints: {waypoints}")
+    # Create the path follower object
+    path_follower = PathFollower(waypoints)
+    return waypoints, path_follower
+
+path_planner = Dijkstra(start_path, goal_path, obstacle_obj)
 path_planned = path_planner.plan(path_planner.grid, path_planner.costs, path_planner.start, path_planner.goal)
 print(f"Path: {path_planned}")
 reversed_path = False   # Flag to indicate if the path is reversed
@@ -133,33 +148,39 @@ new_robot_rect.center = robot_pos
 # Print instructions to control the robot and interact with the simulator
 print("Welcome to the Simple Robot Simulator!")
 print("Use the arrow keys to move the robot or the buttons to control the simulator.")
-# print("Press 'c' to move the robot to the Center of the screen.")
-# print("Press '9' to rotate the robot by 90 degrees.")
-# print("Press 'p' to toggle Printing the robot position.")
-# print("Press 's' to toggle Showing the robot path.")
-# print("Press 'r' to Reset (clear) the robot path.")
-# print("Press 't' to draw a Triangle to indicate the orientation of the robot.")
-# print("Press 'f' to Follow the path defined by the waypoints.")
-# print("Press 'w' to show the Waypoints on the screen.")
-# print("Press 'q' to Quit the program.")
 
-
+#================================================================================================
 # Main loop
 
 while running:
-
-    
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # Check for mouse button clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Move robot only if place_robot is True and mouse clicked inside the screen
             if place_robot:
                 if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
                     robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
                 place_robot = False
+            # Set initial position of the path only if start_pos is True and mouse clicked inside the screen
+            if start_pos:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                    start_path = (pygame.mouse.get_pos()[0]//100, pygame.mouse.get_pos()[1]//100)
+                    robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+                    start_pos = False
+                    goal_pos = True # Set goal position as the same as initial position
+            # Set goal position of the path only if goal_pos is True and mouse clicked inside the screen
+            if goal_pos:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                    goal_path = (pygame.mouse.get_pos()[0]//100, pygame.mouse.get_pos()[1]//100)
+                    goal_pos = False
+                    waypoints, path_follower = plan_path(start_path, goal_path, obstacle_obj)
+                    show_all_waypoints = True                    
+                    path_follower.reset_next_waypoint_index()
+            # Check if the mouse clicked inside the button rectangles
             if quit_button.rect.collidepoint(event.pos):
                 running = False
             if center_button.rect.collidepoint(event.pos):
@@ -176,6 +197,10 @@ while running:
                 show_all_waypoints = not show_all_waypoints
             if place_robot_button.rect.collidepoint(event.pos):
                 place_robot = True
+            if start_pos_button.rect.collidepoint(event.pos):
+                start_pos = not start_pos
+            if goal_pos_button.rect.collidepoint(event.pos):
+                goal_pos = not goal_pos
 
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
@@ -232,6 +257,14 @@ while running:
         place_robot_button.clr = B_GREEN
     else:
         place_robot_button.clr = B_PURPLE
+    if start_pos:
+        start_pos_button.clr = B_GREEN
+    else:
+        start_pos_button.clr = B_PURPLE
+    if goal_pos:
+        goal_pos_button.clr = B_GREEN
+    else:
+        goal_pos_button.clr = B_PURPLE
 
     # Test flags and execute corresponding actions
     if center_robot:
@@ -241,7 +274,8 @@ while running:
     if reset_robot:
         path = tuple()
         path_follower.next_waypoint = 0 # index of the next waypoint
-        robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
+        # robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
+        robot.set_pose([start_path[0]*100 + 50, start_path[1]*100 + 50, 0])
         robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
         # If path has been reversed, reverse it back
         if reversed_path:
@@ -382,13 +416,18 @@ while running:
     place_robot_button.rect.topleft = (screen.get_width() - place_robot_button.rect.width - 10, place_robot_button.rect.height + 60)
     place_robot_button.draw(screen)
 
-    showPath_button.rect.topleft = (screen.get_width() - showPath_button.rect.width - 10, showPath_button.rect.height + 140)
+    start_pos_button.rect.topleft = (screen.get_width() - start_pos_button.rect.width - 10, start_pos_button.rect.height + 120)
+    start_pos_button.draw(screen)
+    goal_pos_button.rect.topleft = (screen.get_width() - goal_pos_button.rect.width - 10, goal_pos_button.rect.height + 160)
+    goal_pos_button.draw(screen)
+
+    showPath_button.rect.topleft = (screen.get_width() - showPath_button.rect.width - 10, showPath_button.rect.height + 220)
     showPath_button.draw(screen)
-    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, followPath_button.rect.height + 180)
+    followPath_button.rect.topleft = (screen.get_width() - followPath_button.rect.width - 10, followPath_button.rect.height + 260)
     followPath_button.draw(screen)
-    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, waypoints_button.rect.height + 220)
+    waypoints_button.rect.topleft = (screen.get_width() - waypoints_button.rect.width - 10, waypoints_button.rect.height + 300)
     waypoints_button.draw(screen)
-    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, reset_button.rect.height + 260)
+    reset_button.rect.topleft = (screen.get_width() - reset_button.rect.width - 10, reset_button.rect.height + 340)
     reset_button.draw(screen)
 
     quit_button.rect.topleft = (screen.get_width() - quit_button.rect.width - 10, screen.get_height() - quit_button.rect.height - 10)
