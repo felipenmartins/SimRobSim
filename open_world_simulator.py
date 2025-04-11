@@ -16,11 +16,19 @@ pygame.display.set_icon(pygame.image.load("roomba-top-view-removebg.png"))
 running = True  # Exit the program when False
 
 # Create the screen
-screen = pygame.display.set_mode((1450, 700)) # width, height
+SCREEN_WIDTH=1500
+SCREEN_HEIGHT=700
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # width, height
 BACKGROUND_COLOR = (220, 220, 220)
 
 # -------------- Buttons --------------
-BUTTONS_AREA_SIZE = 150 # Width of the buttons area
+BUTTONS_AREA_WIDTH = SCREEN_WIDTH//10 # Width of the buttons area
+BUTTON_AREA_HEIGHT= SCREEN_HEIGHT*0.9
+BUTTON_WIDTH = BUTTONS_AREA_WIDTH*0.8
+
+
+# BUTTON_HEIGHT= 
 
 # Functions to call when buttons are clicked
 
@@ -39,16 +47,19 @@ B_GREEN = [100, 255, 100]
 B_YELLOW = [255, 255, 100]  
 
 # Create buttons
-quit_button = Button(size=(120, 50), clr=B_PINK, cngclr=B_RED, text="Quit", font_size=20)
-center_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Center")
-rotate_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="rot. 90°")
-reset_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Reset")
-showPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Show path")
-followPath_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Follow path")
-waypoints_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Waypoints")
-place_robot_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Place robot")
-start_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Start pos.")
-goal_pos_button = Button(size=(120, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Goal pos.")
+quit_button = Button(size=(BUTTON_WIDTH, 50), clr=B_PINK, cngclr=B_RED, text="Quit", font_size=20)
+
+center_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Center")
+rotate_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="rot. 90°")
+reset_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Reset")
+
+showPath_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Show path")
+followPath_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Follow path")
+waypoints_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Waypoints")
+
+place_robot_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Place robot")
+start_pos_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Start pos.")
+goal_pos_button = Button(size=(BUTTON_WIDTH, 35), clr=B_PURPLE, cngclr=B_YELLOW, text="Goal pos.")
 
 # --------------------------------------
 
@@ -162,19 +173,19 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Move robot only if place_robot is True and mouse clicked inside the screen
             if place_robot:
-                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_WIDTH:
                     robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
                 place_robot = False
             # Set initial position of the path only if start_pos is True and mouse clicked inside the screen
             if start_pos:
-                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_WIDTH:
                     start_path = (pygame.mouse.get_pos()[0]//100, pygame.mouse.get_pos()[1]//100)
                     robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
                     start_pos = False
                     goal_pos = True # Set goal position as the same as initial position
             # Set goal position of the path only if goal_pos is True and mouse clicked inside the screen
             if goal_pos:
-                if event.pos[0] < screen.get_width() - BUTTONS_AREA_SIZE:
+                if event.pos[0] < screen.get_width() - BUTTONS_AREA_WIDTH:
                     goal_path = (pygame.mouse.get_pos()[0]//100, pygame.mouse.get_pos()[1]//100)
                     goal_pos = False
                     waypoints, path_follower = plan_path(start_path, goal_path, obstacle_obj)
@@ -342,8 +353,8 @@ while running:
 
 
     # Limit the robot position to the screen
-    if robot_pos.x > screen.get_width() - BUTTONS_AREA_SIZE:
-        robot.set_pose([screen.get_width() - BUTTONS_AREA_SIZE, robot_pos.y, orientation])
+    if robot_pos.x > screen.get_width() - BUTTONS_AREA_WIDTH:
+        robot.set_pose([screen.get_width() - BUTTONS_AREA_WIDTH, robot_pos.y, orientation])
     if robot_pos.y > screen.get_height():
         robot.set_pose([robot_pos.x, screen.get_height(), orientation])
     if robot_pos.x < 0:
@@ -405,8 +416,8 @@ while running:
         screen.blit(text, (500, screen.get_height() - 15))
 
     # Draw the buttons area
-    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE, 0), (screen.get_width() - BUTTONS_AREA_SIZE, screen.get_height()))    
-    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_SIZE + 2, 0), (screen.get_width() - BUTTONS_AREA_SIZE + 2, screen.get_height()))    
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_WIDTH, 0), (screen.get_width() - BUTTONS_AREA_WIDTH, screen.get_height()))    
+    pygame.draw.line(screen, "black", (screen.get_width() - BUTTONS_AREA_WIDTH + 2, 0), (screen.get_width() - BUTTONS_AREA_WIDTH + 2, screen.get_height()))    
 
     # Draw buttons
     center_button.rect.topleft = (screen.get_width() - center_button.rect.width - 10, center_button.rect.height - 20)
