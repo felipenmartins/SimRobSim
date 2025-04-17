@@ -69,16 +69,26 @@ class PathFollower:
 
         return dist_err, phi_err_correct
 
-    def pid_controller(self, e, e_prev, e_acc, delta_t, kp=3.0, kd=0, ki=0):
+    def pid_controller(self, e, e_prev, e_acc, delta_t, kp=4.0, kd=2.0, ki=0.2):
         """ PID algortithm: must be executed every delta_t seconds
         The error e must be calculated as: e = desired_value - actual_value
         e_prev contains the error calculated in the previous step.
         e_acc contains the integration (accumulation) term.
         """
+        # Try the following PID parameters and check the robot behaviour:
+        # kp=1.0, kd=0.0, ki=0.0
+        # kp=0.0, kd=1.0, ki=0.0
+        # kp=0.0, kd=0.0, ki=1.0
+        # kp=4.0, kd=0.0, ki=0.0
+        # kp=4.0, kd=0.0, ki=0.2
+        # kp=4.0, kd=2.0, ki=0.2
     
         P = kp*e                      # Proportional term; kp is the proportional gain
-        I = e_acc + ki*e*delta_t    # Intergral term; ki is the integral gain
+        I = e_acc + ki*e*delta_t      # Intergral term; ki is the integral gain
         D = kd*(e - e_prev)/delta_t   # Derivative term; kd is the derivative gain
+
+        # Limit the integral term to avoid windup
+        I = max(-3, min(3, I))  # limit the integral term
 
         output = P + I + D              # controller output
 
