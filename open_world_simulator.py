@@ -180,7 +180,7 @@ while running:
             if start_pos:
                 if event.pos[0] < screen.get_width() - BUTTONS_AREA_WIDTH:
                     start_path = (pygame.mouse.get_pos()[0]//100, pygame.mouse.get_pos()[1]//100)
-                    robot.set_pose([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], orientation])
+                    reset_robot = True # Reset the robot to the new start position
                     start_pos = False
                     goal_pos = True # Set goal position as the same as initial position
             # Set goal position of the path only if goal_pos is True and mouse clicked inside the screen
@@ -285,7 +285,6 @@ while running:
     if reset_robot:
         path = tuple()
         path_follower.next_waypoint = 0 # index of the next waypoint
-        # robot.set_pose([robot_start_coords[0], robot_start_coords[1], 0])
         robot.set_pose([start_path[0]*100 + 50, start_path[1]*100 + 50, 0])
         robot.set_speed(lin_speed = robot.MAX_LIN_SPEED/2, ang_speed = robot.MAX_ANG_SPEED/2)
         # If path has been reversed, reverse it back
