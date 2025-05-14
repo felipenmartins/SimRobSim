@@ -40,3 +40,8 @@ class Button:
     def call_back(self, *args):
         if self.func:
             return self.func(*args)
+        
+    def hide(self):
+        self.surf.fill((0, 0, 0, 0))
+        self.surf.set_alpha(0)
+        self.txt_surf.fill((0, 0, 0, 0))    
