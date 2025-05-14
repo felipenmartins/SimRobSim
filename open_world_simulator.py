@@ -163,7 +163,16 @@ print("Use the arrow keys to move the robot or the buttons to control the simula
 #================================================================================================
 # Main loop
 
-while running:
+def run_simulation():
+    global show_path, follow_path, show_all_waypoints, place_robot, start_pos, goal_pos, robot_pos, reset_robot
+    global center_robot, rotate_robot_90, print_pos, draw_triangle, path_follower
+    global robot_surface, robot_rect, new_robot_surface, new_robot_rect
+    global path, prev_robot_pos, prev_robot_orientation, reversed_path
+    global collision_counter, robot_pos, orientation
+    global running,count_frames, dt,waypoints, path_follower,obstacles,obstacle_obj,robot,robot_rect
+    global robot_start_coords, robot_goal_coords, start_path, goal_path
+    global robot_surface, robot_rect, new_robot_surface, new_robot_rect, show_all_waypoints, show_next_waypoint
+    
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -456,5 +465,10 @@ while running:
         path += ((int(robot.get_pose()[0]), int(robot.get_pose()[1])),)
         prev_robot_pos = (int(robot.get_pose()[0]), int(robot.get_pose()[1]))
         prev_robot_orientation = robot.get_pose()[2]
+    
+
+while running:
+    run_simulation()
+    
 
 pygame.quit()
