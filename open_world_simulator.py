@@ -150,6 +150,42 @@ robot_surface = pygame.image.load(robot.robot_img).convert_alpha()
 robot_rect = robot_surface.get_rect()
 robot_rect.center = robot_pos
 
+
+def robot_collides(pose):
+    """Return whether the robot's visible footprint overlaps an obstacle."""
+    rotated_surface = pygame.transform.rotate(robot_surface, math.degrees(pose[2]))
+    robot_rect = rotated_surface.get_rect(center=(round(pose[0]), round(pose[1])))
+    robot_mask = pygame.mask.from_surface(rotated_surface)
+
+    for obstacle in obstacles:
+        if not robot_rect.colliderect(obstacle.obs):
+            continue
+        obstacle_mask = pygame.mask.Mask(obstacle.obs.size, fill=True)
+        offset = (obstacle.obs.left - robot_rect.left,
+                  obstacle.obs.top - robot_rect.top)
+        if robot_mask.overlap(obstacle_mask, offset) is not None:
+            return True
+    return False
+
+
+def motion_collides(start_pose, end_pose):
+    """Check the swept robot footprint, including rotation, for collisions."""
+    dx = end_pose[0] - start_pose[0]
+    dy = end_pose[1] - start_pose[1]
+    angle_delta = (end_pose[2] - start_pose[2] + math.pi) % (2 * math.pi) - math.pi
+    robot_radius = math.hypot(robot_surface.get_width(), robot_surface.get_height()) / 2
+    travel = max(math.hypot(dx, dy), abs(angle_delta) * robot_radius)
+    steps = max(1, math.ceil(travel / 2))
+
+    for step in range(1, steps + 1):
+        fraction = step / steps
+        pose = [start_pose[0] + dx * fraction,
+                start_pose[1] + dy * fraction,
+                start_pose[2] + angle_delta * fraction]
+        if robot_collides(pose):
+            return True
+    return False
+
 # Draw the robot
 # Make a copy of the robot_surface to rotate it with respect to the original one
 new_robot_surface = pygame.transform.rotate(robot_surface, orientation%360)
@@ -343,6 +379,7 @@ def run_simulation():
 
     # Move the robot with the arrow keys
     keys = pygame.key.get_pressed()
+    pose_before_motion = robot.get_pose().copy()
     # Move the robot
     if keys[pygame.K_UP]:
         robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=abs(robot.lin_speed), ang_speed=0)
@@ -358,6 +395,14 @@ def run_simulation():
         # Linear speed is constant; Angular speed depends on the next waypoint
         robot.ang_speed = path_follower.generate_angular_move(robot_pos, orientation)
         robot_pos[0], robot_pos[1], orientation = robot.move()
+
+    # Reject any move whose full swept footprint intersects an obstacle.
+    # Reverting to the last safe pose works for both forward and reverse motion.
+    if motion_collides(pose_before_motion, robot.get_pose()):
+        collision_counter += 1
+        print(f"{collision_counter} collisions detected.")
+        robot.set_pose(pose_before_motion)
+        robot_pos[0], robot_pos[1], orientation = robot.get_pose()
 
 
     # Limit the robot position to the screen
@@ -393,17 +438,6 @@ def run_simulation():
     # Draw the obstacles
     for obstacle in obstacles:
         pygame.draw.rect(screen, obstacle.color, obstacle.obs, 0,1)
-        # collide = obstacle.obs.colliderect(new_robot_rect)
-        collide = obstacle.obs.collidepoint(robot_pos) # Center of the robot
-        # Check other points around the robot
-
-        # If collide after moving, move with negative speed of same amplitude
-        if collide:
-            collision_counter += 1
-            print(f"{collision_counter} collisions detected.") 
-            # Apply negative speed to return to non-collision state. 
-            # *** Does NOT work for collisions in manual mode with negative linear speed! ***
-            robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-robot.lin_speed, ang_speed=-robot.ang_speed)
 
     font_size = int(screen.get_height() * 0.03)  # 3% of screen height
     font = pygame.font.Font(None, font_size)

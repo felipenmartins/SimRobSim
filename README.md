@@ -76,9 +76,9 @@ The main components of the code are:
 
 ## To do
 
-There are tons of things to do! 
+There are tons of things to do!
 
-- Fix the reaction to obstacle collision: at the moment, collision is only detected by checking the position of the center of the robot. Besides, the if the robot is moving backwards, it will cross the obstacle.
+- Fix the reaction to obstacle collision: at the moment, the robot stops moving when it touches obstacles in any orientation. Ideally, the robot should be able to still move alongside the obstacle, as if scratching it.
 - Organize the entire code in classes (on-going) to separate the code into independent parts. The idea (dream) is:
 
 * Robot class
