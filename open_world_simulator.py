@@ -377,32 +377,34 @@ def run_simulation():
     if show_next_waypoint:
         pygame.draw.circle(screen, "blue", waypoints[path_follower.next_waypoint], 5)
 
-    # Move the robot with the arrow keys
-    keys = pygame.key.get_pressed()
     pose_before_motion = robot.get_pose().copy()
-    # Move the robot
-    if keys[pygame.K_UP]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=abs(robot.lin_speed), ang_speed=0)
-    if keys[pygame.K_DOWN]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-abs(robot.lin_speed), ang_speed=0)
-    if keys[pygame.K_LEFT]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=abs(robot.ang_speed))
-    if keys[pygame.K_RIGHT]:
-        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=-abs(robot.ang_speed))
 
     # let path follwer change the robot position
     if follow_path:
         # Linear speed is constant; Angular speed depends on the next waypoint
         robot.ang_speed = path_follower.generate_angular_move(robot_pos, orientation)
         robot_pos[0], robot_pos[1], orientation = robot.move()
+    
+    # Move the robot with the arrow keys
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP]:
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=abs(robot.lin_speed), ang_speed=0)
+    if keys[pygame.K_DOWN]:
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=-abs(robot.lin_speed), ang_speed=0)
+    if keys[pygame.K_LEFT]:
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=abs(robot.MAX_ANG_SPEED/2))
+    if keys[pygame.K_RIGHT]:
+        robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=-abs(robot.MAX_ANG_SPEED/2))
 
     # Reject any move whose full swept footprint intersects an obstacle.
     # Reverting to the last safe pose works for both forward and reverse motion.
     if motion_collides(pose_before_motion, robot.get_pose()):
         collision_counter += 1
         print(f"{collision_counter} collisions detected.")
-        robot.set_pose(pose_before_motion)
-        robot_pos[0], robot_pos[1], orientation = robot.get_pose()
+        # robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=abs(robot.ang_speed))
+        robot.set_pose([pose_before_motion[0], pose_before_motion[1], orientation])
+        # robot_pos[0], robot_pos[1], orientation = robot.move(lin_speed=0, ang_speed=abs(robot.ang_speed))
+        # robot_pos[0], robot_pos[1], orientation = robot.get_pose()
 
 
     # Limit the robot position to the screen
